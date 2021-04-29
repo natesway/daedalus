@@ -66,7 +66,6 @@ std::queue<u32> Address;
 std::queue<u32> Length;
 int MEWorktodo_Samples = 0;
 int MEReadytoWork = 0;
-int SCBusyAdding = 0;
 
 #endif
 
@@ -265,8 +264,6 @@ int MediaEngineFeeder(SceSize args, void *argp){
 
 		while(!MEQueue.empty()){
 
-				//while(SCBusyAdding == 1)
-				//sceKernelDelayThread(1);
 
 				sceKernelDcacheWritebackInvalidateAll();
 				memcpy(p_alistbufferme, &MEQueue.front(), sizeof(*p_alistbufferme));
@@ -289,7 +286,7 @@ int MediaEngineFeeder(SceSize args, void *argp){
 				MEQueue.pop();
 				MEReadytoWork = 1;
 				
-				while(!Address.empty()){
+				while(!Address.empty() && MEQueue.empty()){
 
 					if(!MEQueue.empty())
 					break;
@@ -298,8 +295,6 @@ int MediaEngineFeeder(SceSize args, void *argp){
 
 					Address.pop();
 					Length.pop();
-
-					SCBusyAdding = 0;
 
 				}
 			}
