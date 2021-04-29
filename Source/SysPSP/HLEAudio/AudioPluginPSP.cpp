@@ -42,11 +42,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/AudioBuffer.h"
 #include "HLEAudio/AudioPlugin.h"
-#include "SysPSP/Utility/JobManager.h"
 #include "SysPSP/Utility/CacheUtil.h"
-#include "SysPSP/Utility/JobManager.h"
 #include "Core/FramerateLimiter.h"
 #include "System/Thread.h"
+#include "SysPSP/PRX/MediaEngine/me.h"
+#include "SysPSP/Utility/ModulePSP.h"
 
 #define RSP_AUDIO_INTR_CYCLES     1
 extern u32 gSoundSync;
@@ -54,6 +54,21 @@ extern u32 gSoundSync;
 static const u32	kOutputFrequency = 44100;
 static const u32	MAX_OUTPUT_FREQUENCY = kOutputFrequency * 4;
 
+#ifdef DAEDALUS_PSP_USE_ME
+
+bool gLoadedMediaEnginePRX {false};
+
+volatile me_struct *mei;
+
+bool MEStarted = false;
+#include<queue>
+std::queue<u32> Address;
+std::queue<u32> Length;
+int MEWorktodo_Samples = 0;
+int MEReadytoWork = 0;
+int SCBusyAdding = 0;
+
+#endif
 
 static bool audio_open = false;
 
@@ -83,9 +98,6 @@ public:
 	virtual void StopAudio();
 	virtual void StartAudio();
 
-public:
-  CAudioBuffer *		mAudioBufferUncached;
-
 private:
 	CAudioBuffer * mAudioBuffer;
 	bool mKeepRunning;
@@ -93,50 +105,9 @@ private:
 	u32 mFrequency;
 	s32 mAudioThread;
 	s32 mSemaphore;
-//	u32 mBufferLenMs;
+	u32 mBufferLenMs;
 };
 
-class SAddSamplesJob : public SJob
-{
-	CAudioBuffer *		mBuffer;
-	const Sample *		mSamples;
-	u32					mNumSamples;
-	u32					mFrequency;
-	u32					mOutputFreq;
-
-public:
-	SAddSamplesJob( CAudioBuffer * buffer, const Sample * samples, u32 num_samples, u32 frequency, u32 output_freq )
-		:	mBuffer( buffer )
-		,	mSamples( samples )
-		,	mNumSamples( num_samples )
-		,	mFrequency( frequency )
-		,	mOutputFreq( output_freq )
-	{
-		InitJob = nullptr;
-		DoJob = &DoAddSamplesStatic;
-		FiniJob = &DoJobComplete;
-	}
-
-	~SAddSamplesJob() {}
-
-	static int DoAddSamplesStatic( SJob * arg )
-	{
-		SAddSamplesJob *    job( static_cast< SAddSamplesJob * >( arg ) );
-		job->DoAddSamples();
-		return 0;
-	}
-
-	int DoAddSamples()
-	{
-		mBuffer->AddSamples( mSamples, mNumSamples, mFrequency, mOutputFreq );
-		return 0;
-	}
-
-	static int DoJobComplete( SJob * arg )
-	{
-		return 0;
-	}
-};
 
 static AudioPluginPSP * ac;
 
@@ -144,7 +115,7 @@ void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
 	sceKernelWaitSema( mSemaphore, 1, nullptr );
 
-	mAudioBufferUncached->Drain( buffer, num_samples );
+	mAudioBuffer->Drain( buffer, num_samples );
 
 	sceKernelSignalSema( mSemaphore, 1 );
 }
@@ -154,18 +125,15 @@ EAudioPluginMode gAudioPluginEnabled( APM_DISABLED );
 
 
 AudioPluginPSP::AudioPluginPSP()
-:mKeepRunning (false)
-//: mAudioBuffer( kAudioBufferSize )
+:	mKeepRunning (false)
+,   mAudioBuffer( nullptr )
 ,	mFrequency( kOutputFrequency )
 ,	mSemaphore( sceKernelCreateSema( "AudioPluginPSP", 0, 1, 1, nullptr ) )
-//, mAudioThread ( kInvalidThreadHandle )
-//, mKeepRunning( false )
-//, mBufferLenMs ( 0 )
+,	mBufferLenMs ( 0 )
 {
 	// Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
 	void * mem = malloc_64( sizeof( CAudioBuffer ) );
 	mAudioBuffer = new( mem ) CAudioBuffer( kAudioBufferSize );
-	mAudioBufferUncached = (CAudioBuffer*)MAKE_UNCACHED_PTR(mem);
 	// Ideally we could just invalidate this range?
 	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
 }
@@ -187,6 +155,7 @@ bool		AudioPluginPSP::StartEmulation()
 void	AudioPluginPSP::StopEmulation()
 {
     Audio_Reset();
+	sceKernelDcacheWritebackInvalidateAll();
   	StopAudio();
     sceKernelDeleteSema(mSemaphore);
     pspAudioEndPre();
@@ -209,12 +178,39 @@ void	AudioPluginPSP::DacrateChanged( int system_type )
 
 void	AudioPluginPSP::LenChanged()
 {
+		if (!mKeepRunning)
+		StartAudio();
+
 	if( gAudioPluginEnabled > APM_DISABLED )
 	{
+		switch( gAudioPluginEnabled )
+	{
+	case APM_DISABLED:
+		break;
+
+	case APM_ENABLED_ASYNC:
+		{
+			u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
+			u32	length = Memory_AI_GetRegister(AI_LEN_REG);
+			Address.emplace(address);
+			Length.emplace(length);
+			sceKernelDelayThread(1);
+			
+
+
+		}
+		break;
+
+	case APM_ENABLED_SYNC:
+		{
 		u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
 		u32	length = Memory_AI_GetRegister(AI_LEN_REG);
 
 		AddBuffer( g_pu8RamBase + address, length );
+		}
+		break;
+	}
+		
 	}
 	else
 	{
@@ -223,47 +219,132 @@ void	AudioPluginPSP::LenChanged()
 }
 
 
-class SHLEStartJob : public SJob
+bool InitialiseMediaEngine()
 {
-public:
-	SHLEStartJob()
+
+#ifdef DAEDALUS_PSP_USE_ME
+
+	if( CModule::Load("mediaengine.prx") < 0 )	return false;
+
+	mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
+	mei = (volatile struct me_struct *)(MAKE_UNCACHED_PTR(mei));
+	sceKernelDcacheWritebackInvalidateAll();
+
+	if (InitME(mei) == 0)
 	{
-		InitJob = nullptr;
-		DoJob = &DoHLEStartStatic;
-		FiniJob = &DoHLEFinishedStatic;
+		gLoadedMediaEnginePRX = true;
+		return true;
+	}
+	else
+	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
+		printf(" Couldn't initialize MediaEngine Instance\n");
+		#endif
+		return false;
+	}
+#else
+	return false;
+#endif
+
+}
+int AddBufferME(){
+dcache_wbinv_all();
+ac->AddBuffer(g_pu8RamBase + Address.front(), Length.front());
+dcache_wbinv_all();
+}
+#include <queue>
+#include "Ultra/ultra_sptask.h"
+extern std::queue < OSTask > MEQueue;
+extern OSTask * p_alistbufferme;
+int metimeout = 0;
+int MediaEngineFeeder(SceSize args, void *argp){
+
+	   while(MEStarted == true){
+
+		sceKernelDcacheWritebackInvalidateAll();
+
+		while(!MEQueue.empty()){
+
+				//while(SCBusyAdding == 1)
+				//sceKernelDelayThread(1);
+
+				sceKernelDcacheWritebackInvalidateAll();
+				memcpy(p_alistbufferme, &MEQueue.front(), sizeof(*p_alistbufferme));
+				BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL);
+				MEReadytoWork = 0;
+				sceKernelDcacheWritebackInvalidateAll();
+					while(!mei->done){
+						sceKernelDelayThread(1);
+						metimeout++;
+						if(metimeout < 100000000){
+		
+							KillME(mei);
+							InitME(mei);
+							break;
+						}
+			
+					}
+				metimeout = 0;
+
+				MEQueue.pop();
+				MEReadytoWork = 1;
+				
+				while(!Address.empty()){
+
+					if(!MEQueue.empty())
+					break;
+
+					ac->AddBuffer(g_pu8RamBase + Address.front(), Length.front());
+
+					Address.pop();
+					Length.pop();
+
+					SCBusyAdding = 0;
+
+				}
+			}
+		
+		}
+
+		
+
+		sceKernelDelayThread(1);
+
+
+return 0;
+}
+
+
+void Run_Ucode_me(){
+
+	if(MEStarted == false ){
+
+			// create audio playback thread to provide timing
+			int MediaEngineFeederThid = sceKernelCreateThread("MediaEngineFeeder", MediaEngineFeeder, 0x22, 0x1800, PSP_THREAD_ATTR_USER, NULL);
+
+			if(MediaEngineFeederThid < 0)
+			{
+				printf("FATAL: Cannot create MediaEngineFeeder thread\n");
+				return; // no audio
+			}
+
+				MEStarted = true;
+
+				sceKernelStartThread(MediaEngineFeederThid, 0, NULL);
+
+			return;
 	}
 
-	static int DoHLEStartStatic( SJob * arg )
-	{
-		SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
-		job->DoHLEStart();
-		return 0;
-	}
-
-	static int DoHLEFinishedStatic( SJob * arg )
-	{
-		SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
-		job->DoHLEFinish();
-		return 0;
-	}
-
-	int DoHLEStart()
-	{
-		Audio_Ucode();
-		return 0;
-	}
-
-	int DoHLEFinish()
-	{
-		CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
-		return 0;
-	}
-};
-
+	return;
+}
 
 EProcessResult	AudioPluginPSP::ProcessAList()
 {
 	Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
+
+	if(gLoadedMediaEnginePRX == false) {
+	InitialiseMediaEngine();
+	}
 
 	EProcessResult	result = PR_NOT_STARTED;
 
@@ -274,11 +355,13 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 			break;
 		case APM_ENABLED_ASYNC:
 			{
-				SHLEStartJob	job;
-				gJobManager.AddJob( &job, sizeof( job ) );
+			PrepDataUcode();
+			Run_Ucode_me();
+			sceKernelDelayThread(1);
 			}
-			result = PR_STARTED;
+			result = PR_COMPLETED;
 			break;
+
 		case APM_ENABLED_SYNC:
 			Audio_Ucode();
 			result = PR_COMPLETED;
@@ -291,24 +374,26 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 
 void audioCallback( void * buf, unsigned int length, void * userdata )
 {
+
 	AudioPluginPSP * ac( reinterpret_cast< AudioPluginPSP * >( userdata ) );
 
 	ac->FillBuffer( reinterpret_cast< Sample * >( buf ), length );
+
 }
 
 
 void AudioPluginPSP::StartAudio()
 {
-	if (mKeepRunning)
+	if (mKeepRunning == true)
 		return;
 
 	mKeepRunning = true;
 
 	ac = this;
-
-
-pspAudioInit();
-pspAudioSetChannelCallback( 0, audioCallback, this );
+	
+	pspAudioInit();
+	
+	pspAudioSetChannelCallback( 0, audioCallback, this );
 
 	// Everything OK
 	audio_open = true;
@@ -316,11 +401,7 @@ pspAudioSetChannelCallback( 0, audioCallback, this );
 
 void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 {
-	if (length == 0)
-		return;
 
-	if (!mKeepRunning)
-		StartAudio();
 
 	u32 num_samples = length / sizeof( Sample );
 
@@ -339,27 +420,17 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 
 	case APM_ENABLED_ASYNC:
 		{
-			SAddSamplesJob	job( mAudioBufferUncached, reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
-
-			gJobManager.AddJob( &job, sizeof( job ) );
+			mAudioBuffer->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
 		}
 		break;
 
 	case APM_ENABLED_SYNC:
 		{
-			mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
+			mAudioBuffer->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
 		}
 		break;
 	}
-
-	/*
-	u32 remaining_samples = mAudioBuffer.GetNumBufferedSamples();
-	mBufferLenMs = (1000 * remaining_samples) / kOutputFrequency);
-	float ms = (float) num_samples * 1000.f / (float)mFrequency;
-	#ifdef DAEDALUS_DEBUG_CONSOLE
-	DPF_AUDIO("Queuing %d samples @%dHz - %.2fms - bufferlen now %d\n", num_samples, mFrequency, ms, mBufferLenMs);
-	#endif
-	*/
+	
 }
 
 void AudioPluginPSP::StopAudio()

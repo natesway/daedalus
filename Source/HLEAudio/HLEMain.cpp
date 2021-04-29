@@ -114,6 +114,73 @@ inline void Audio_Ucode_Detect(OSTask * pTask)
 //*****************************************************************************
 //
 //*****************************************************************************
+#ifdef DAEDALUS_PSP
+#include <string.h>
+#include <stdio.h>
+#include "SysPSP/Utility/CacheUtil.h"
+#include "Utility/FastMemcpy.h"
+#include <queue>
+std::queue < OSTask > MEQueue;
+OSTask * pTask;
+//OSTask * p_alistbuffer = (OSTask *)malloc_64(1024);
+OSTask * p_alistbufferme = (OSTask *)malloc_64(1024);
+
+void PrepDataUcode(){
+
+
+	pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
+	//p_alistbuffer = (u32 *)malloc_64(sizeof(*pTask));
+	
+		// Only detect ABI once per game
+	if ( !bAudioChanged )
+	{
+		bAudioChanged = true;
+		Audio_Ucode_Detect( pTask );
+	}
+
+	MEQueue.emplace(*pTask);
+
+}
+
+void Audio_Ucode()
+{
+	#ifdef DAEDALUS_PROFILE
+	DAEDALUS_PROFILE( "HLEMain::Audio_Ucode" );
+	#endif
+
+	//memcpy(p_alistbufferme, &MEQueue.front(), sizeof(*p_alistbufferme));
+
+	OSTask * pTaskme = p_alistbufferme;
+	
+	gAudioHLEState.LoopVal = 0;
+	//memset( gAudioHLEState.Segments, 0, sizeof( gAudioHLEState.Segments ) );
+
+	u32 * p_alist = (u32 *)(g_pu8RamBase + (uintptr_t)pTaskme->t.data_ptr);
+	u32 ucode_size = (pTaskme->t.data_size >> 3);	//ABI5 can return 0 here!!!
+
+	dcache_wbinv_all();
+
+	while( ucode_size )
+	{
+
+		dcache_wbinv_all();
+
+		AudioHLECommand command;
+		command.cmd0 = *p_alist++;
+		command.cmd1 = *p_alist++;
+
+		ABI[command.cmd](command);
+
+		--ucode_size;
+
+		//printf("%08X %08X\n",command.cmd0,command.cmd1);
+	}
+
+
+
+
+}
+#else
 void Audio_Ucode()
 {
 	#ifdef DAEDALUS_PROFILE
@@ -147,3 +214,4 @@ void Audio_Ucode()
 		//printf("%08X %08X\n",command.cmd0,command.cmd1);
 	}
 }
+#endif

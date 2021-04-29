@@ -437,5 +437,5 @@ void UNKNOWN(AudioHLECommand command);
 // Use these functions to interface with the HLE Audio...
 void Audio_Ucode();
 void Audio_Reset();
-
+void PrepDataUcode();
 #endif // HLEAUDIO_AUDIOHLE_H_

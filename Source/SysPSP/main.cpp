@@ -104,7 +104,7 @@ extern int PSP_TV_LACED;
 bool g32bitColorMode = false;
 bool PSP_IS_SLIM = false;
 
-PSP_MODULE_INFO( DaedalusX64 1.1.8, 0, 1, 1 );
+PSP_MODULE_INFO( DaedalusX64 1.1.9, 0, 1, 1 );
 PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 PSP_HEAP_SIZE_KB(-256);
 
@@ -214,10 +214,6 @@ static bool	Initialize()
 	// Check for PSVita in PSP Mode
 	DaedalusVitaCheck();
 
-	// Initiate MediaEngine
-	//Note: Media Engine is not available for Vita
-	bool bMeStarted = InitialiseJobManager();
-
 // Disable for profiling
 //	srand(time(0));
 
@@ -244,7 +240,7 @@ extern void initExceptionHandler();
 	if ( kuKernelGetModel() > 0 )
 	{
 		// Can't use extra memory if ME isn't available
-		PSP_IS_SLIM = bMeStarted;
+		PSP_IS_SLIM = true;
 
 		HAVE_DVE = CModule::Load("dvemgr.prx");
 		if (HAVE_DVE >= 0)
