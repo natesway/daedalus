@@ -47,6 +47,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/Thread.h"
 #include "SysPSP/PRX/MediaEngine/me.h"
 #include "SysPSP/Utility/ModulePSP.h"
+#include <queue>
+#include "Ultra/ultra_sptask.h"
 
 #define RSP_AUDIO_INTR_CYCLES     1
 extern u32 gSoundSync;
@@ -57,15 +59,15 @@ static const u32	MAX_OUTPUT_FREQUENCY = kOutputFrequency * 4;
 #ifdef DAEDALUS_PSP_USE_ME
 
 bool gLoadedMediaEnginePRX {false};
-
 volatile me_struct *mei;
-
 bool MEStarted = false;
-#include<queue>
-std::queue<u32> Address;
-std::queue<u32> Length;
+extern std::queue < OSTask > MEQueue;
+extern OSTask * p_alistbufferme;
+int metimeout = 0;
 int MEWorktodo_Samples = 0;
 int MEReadytoWork = 0;
+std::queue<u32> Address;
+std::queue<u32> Length;
 
 #endif
 
@@ -140,9 +142,23 @@ AudioPluginPSP::AudioPluginPSP()
 AudioPluginPSP::~AudioPluginPSP( )
 {
 	mAudioBuffer->~CAudioBuffer();
-  free(mAudioBuffer);
-  sceKernelDeleteSema(mSemaphore);
-  pspAudioEnd();
+  	free(mAudioBuffer);
+
+  	#ifdef DAEDALUS_PSP_USE_ME
+
+  	while(!MEQueue.empty()){
+	  	MEQueue.pop();
+  	}
+
+  	while(!Address.empty()){
+	 	Address.pop();
+	  	Length.pop();
+  	}
+
+ 	 #endif
+
+  	sceKernelDeleteSema(mSemaphore);
+  	pspAudioEnd();
 }
 
 bool		AudioPluginPSP::StartEmulation()
@@ -246,16 +262,14 @@ bool InitialiseMediaEngine()
 #endif
 
 }
+
+//Not working ATM -> code matches what is done on SC. 
 int AddBufferME(){
 dcache_wbinv_all();
 ac->AddBuffer(g_pu8RamBase + Address.front(), Length.front());
 dcache_wbinv_all();
 }
-#include <queue>
-#include "Ultra/ultra_sptask.h"
-extern std::queue < OSTask > MEQueue;
-extern OSTask * p_alistbufferme;
-int metimeout = 0;
+
 int MediaEngineFeeder(SceSize args, void *argp){
 
 	   while(MEStarted == true){
