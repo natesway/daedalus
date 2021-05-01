@@ -56,23 +56,7 @@ extern u32 gSoundSync;
 static const u32	kOutputFrequency = 44100;
 static const u32	MAX_OUTPUT_FREQUENCY = kOutputFrequency * 4;
 
-#ifdef DAEDALUS_PSP_USE_ME
-
-bool gLoadedMediaEnginePRX {false};
-volatile me_struct *mei;
-bool MEStarted = false;
-extern std::queue < OSTask > MEQueue;
-extern OSTask * p_alistbufferme;
-int metimeout = 0;
-int MEWorktodo_Samples = 0;
-int MEReadytoWork = 0;
-std::queue<u32> Address;
-std::queue<u32> Length;
-
-#endif
-
 static bool audio_open = false;
-
 
 // Large kAudioBufferSize creates huge delay on sound //Corn
 static const u32	kAudioBufferSize = 1024 * 2; // OSX uses a circular buffer length, 1024 * 1024
@@ -109,8 +93,106 @@ private:
 	u32 mBufferLenMs;
 };
 
-
 static AudioPluginPSP * ac;
+
+//ME Variables and Functions -> TODO: Move to its own file?
+#ifdef DAEDALUS_PSP_USE_ME
+
+bool gLoadedMediaEnginePRX {false};
+volatile me_struct *mei;
+bool MEStarted = false;
+extern std::queue < OSTask > MEQueue;
+extern OSTask * p_alistbufferme;
+int metimeout = 0;
+int MEWorktodo_Samples = 0;
+int MEReadytoWork = 0;
+std::queue<u32> Address;
+std::queue<u32> Length;
+
+
+//Not working ATM -> code matches what is done on SC. 
+int AddBufferME(){
+dcache_wbinv_all();
+ac->AddBuffer(g_pu8RamBase + Address.front(), Length.front());
+dcache_wbinv_all();
+}
+
+int MediaEngineFeeder(SceSize args, void *argp){
+
+	   while(MEStarted == true){
+
+		sceKernelDcacheWritebackInvalidateAll();
+
+		if(!MEQueue.empty()){
+
+
+				sceKernelDcacheWritebackInvalidateAll();
+				memcpy(p_alistbufferme, &MEQueue.front(), sizeof(*p_alistbufferme));
+				BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL);
+				MEReadytoWork = 0;
+				sceKernelDcacheWritebackInvalidateAll();
+					while(!mei->done){
+						sceKernelDelayThread(1);
+						metimeout++;
+						if(metimeout < 100000000){
+		
+							KillME(mei);
+							InitME(mei);
+							break;
+						}
+			
+					}
+				metimeout = 0;
+
+				MEQueue.pop();
+				MEReadytoWork = 1;
+				
+				if(!Address.empty() && MEQueue.empty()){
+
+					if(!MEQueue.empty())
+					break;
+
+					ac->AddBuffer(g_pu8RamBase + Address.front(), Length.front());
+
+					Address.pop();
+					Length.pop();
+
+				}
+			}
+		
+		}
+
+		
+
+		sceKernelDelayThread(1);
+
+
+return 0;
+}
+
+int MediaEngineFeederThid = sceKernelCreateThread("MediaEngineFeeder", MediaEngineFeeder, 0x22, 0x1800, PSP_THREAD_ATTR_USER, NULL);
+
+void Run_Ucode_me(){
+
+	if(MEStarted == false ){
+
+			if(MediaEngineFeederThid < 0)
+			{
+				printf("FATAL: Cannot create MediaEngineFeeder thread\n");
+				return; // no audio
+			}
+
+				MEStarted = true;
+
+				sceKernelStartThread(MediaEngineFeederThid, 0, NULL);
+
+			return;
+	}
+
+	return;
+}
+
+#endif
 
 void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
@@ -145,6 +227,8 @@ AudioPluginPSP::~AudioPluginPSP( )
   	free(mAudioBuffer);
 
   	#ifdef DAEDALUS_PSP_USE_ME
+
+	sceKernelDeleteThread(MediaEngineFeederThid);
 
   	while(!MEQueue.empty()){
 	  	MEQueue.pop();
@@ -263,89 +347,6 @@ bool InitialiseMediaEngine()
 
 }
 
-//Not working ATM -> code matches what is done on SC. 
-int AddBufferME(){
-dcache_wbinv_all();
-ac->AddBuffer(g_pu8RamBase + Address.front(), Length.front());
-dcache_wbinv_all();
-}
-
-int MediaEngineFeeder(SceSize args, void *argp){
-
-	   while(MEStarted == true){
-
-		sceKernelDcacheWritebackInvalidateAll();
-
-		while(!MEQueue.empty()){
-
-
-				sceKernelDcacheWritebackInvalidateAll();
-				memcpy(p_alistbufferme, &MEQueue.front(), sizeof(*p_alistbufferme));
-				BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL);
-				MEReadytoWork = 0;
-				sceKernelDcacheWritebackInvalidateAll();
-					while(!mei->done){
-						sceKernelDelayThread(1);
-						metimeout++;
-						if(metimeout < 100000000){
-		
-							KillME(mei);
-							InitME(mei);
-							break;
-						}
-			
-					}
-				metimeout = 0;
-
-				MEQueue.pop();
-				MEReadytoWork = 1;
-				
-				while(!Address.empty() && MEQueue.empty()){
-
-					if(!MEQueue.empty())
-					break;
-
-					ac->AddBuffer(g_pu8RamBase + Address.front(), Length.front());
-
-					Address.pop();
-					Length.pop();
-
-				}
-			}
-		
-		}
-
-		
-
-		sceKernelDelayThread(1);
-
-
-return 0;
-}
-
-
-void Run_Ucode_me(){
-
-	if(MEStarted == false ){
-
-			// create audio playback thread to provide timing
-			int MediaEngineFeederThid = sceKernelCreateThread("MediaEngineFeeder", MediaEngineFeeder, 0x22, 0x1800, PSP_THREAD_ATTR_USER, NULL);
-
-			if(MediaEngineFeederThid < 0)
-			{
-				printf("FATAL: Cannot create MediaEngineFeeder thread\n");
-				return; // no audio
-			}
-
-				MEStarted = true;
-
-				sceKernelStartThread(MediaEngineFeederThid, 0, NULL);
-
-			return;
-	}
-
-	return;
-}
 
 EProcessResult	AudioPluginPSP::ProcessAList()
 {
@@ -383,9 +384,7 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 
 void audioCallback( void * buf, unsigned int length, void * userdata )
 {
-
 	AudioPluginPSP * ac( reinterpret_cast< AudioPluginPSP * >( userdata ) );
-
 	ac->FillBuffer( reinterpret_cast< Sample * >( buf ), length );
 
 }
