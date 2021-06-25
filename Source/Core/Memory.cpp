@@ -647,7 +647,7 @@ void MemoryUpdateSPStatus( u32 flags )
 	if (flags & SP_SET_HALT)
 	{
 		set_bits |= SP_STATUS_HALT;
-		stop_rsp = true;
+		stop_rsp = false;
 	}
 
 	if (flags & SP_CLR_BROKE)
