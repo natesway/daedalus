@@ -101,10 +101,15 @@ static AudioPluginPSP * ac;
 //ME Variables and Functions -> TODO: Move to its own file?
 #ifdef DAEDALUS_PSP_USE_ME
 
+#define MAX_MEBUFFSZ 8 * 512
+#define MEBUFFSZ_MASK (MAX_MEBUFFSZ - 1)
+#define IndexStep (256)
+
 bool gLoadedMediaEnginePRX {false};
 volatile me_struct *mei;
 bool MEStarted = false;
-extern std::queue < OSTask > MEQueue;
+extern OSTask MEQueue[MAX_MEBUFFSZ];
+extern unsigned int BuffIndex;
 extern OSTask * p_alistbufferme;
 int metimeout = 0;
 int MEWorktodo_Samples = 0;
@@ -122,25 +127,27 @@ ac->AddBuffer(g_pu8RamBase + Address.front(), Length.front());
 
 int MediaEngineFeeder(){
 
+	unsigned int index = 0;
+
 	while(MEStarted == true){
+
+		index = index&MEBUFFSZ_MASK;
 
 		dcache_wbinv_all();
 
-		if(!MEQueue.empty()){
-				memcpy(p_alistbufferme, &MEQueue.front(), sizeof(*p_alistbufferme));
-				Audio_Ucode();
-				MEQueue.pop();
+		if(index <= BuffIndex){
+			memcpy(p_alistbufferme, &MEQueue[index], IndexStep);
+			Audio_Ucode();
+			index += IndexStep;
 		}
 		
 			
 		if(!Address.empty()){
-					AddBufferME();
-					Address.pop();
-					Length.pop();
+				AddBufferME();
+				Address.pop();
+				Length.pop();
 					
-		}
-		
-		
+		}		
 	}
 
 
@@ -398,9 +405,9 @@ void AudioPluginPSP::StopAudio()
 
 	MEStarted = false;
 
-  	while(!MEQueue.empty()){
+  	/*while(!MEQueue.empty()){
 	  	MEQueue.pop();
-  	}
+  	}*/
 
   	while(!Address.empty()){
 	 	Address.pop();

@@ -119,16 +119,22 @@ inline void Audio_Ucode_Detect(OSTask * pTask)
 #include <stdio.h>
 #include "SysPSP/Utility/CacheUtil.h"
 #include "Utility/FastMemcpy.h"
-#include <queue>
-std::queue < OSTask > MEQueue;
-OSTask * pTask;
+
+#define MAX_MEBUFFSZ 8 * 512
+#define MEBUFFSZ_MASK (MAX_MEBUFFSZ - 1)
+#define IndexStep (256)
+
+OSTask MEQueue[MAX_MEBUFFSZ] {0};
+unsigned int BuffIndex = 0;
+
+//OSTask * pTask;
 //OSTask * p_alistbuffer = (OSTask *)malloc_64(1024);
-OSTask * p_alistbufferme = (OSTask *)malloc_64(1024);
+OSTask * p_alistbufferme = (OSTask *)malloc_64(IndexStep);
 
 void PrepDataUcode(){
 
+	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 
-	pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 	//p_alistbuffer = (u32 *)malloc_64(sizeof(*pTask));
 	
 		// Only detect ABI once per game
@@ -137,8 +143,14 @@ void PrepDataUcode(){
 		bAudioChanged = true;
 		Audio_Ucode_Detect( pTask );
 	}
+	
 
-	MEQueue.emplace(*pTask);
+	//MEQueue[BuffIndex++&MEBUFFSZ_MASK] = *pTask;
+
+	memcpy(&MEQueue[BuffIndex], pTask, IndexStep);
+
+	BuffIndex += IndexStep;
+	BuffIndex &= MEBUFFSZ_MASK;
 
 }
 
