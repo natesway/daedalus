@@ -104,57 +104,78 @@ static AudioPluginPSP * ac;
 #define MAX_MEBUFFSZ 8 * 512
 #define MEBUFFSZ_MASK (MAX_MEBUFFSZ - 1)
 #define IndexStep (256)
+#define IndexStepSample (4)
 
 bool gLoadedMediaEnginePRX {false};
 volatile me_struct *mei;
 bool MEStarted = false;
 extern OSTask MEQueue[MAX_MEBUFFSZ];
 extern unsigned int BuffIndex;
+unsigned int BuffIndexSample {0};
+unsigned int BuffindexJobType {0};
 extern OSTask * p_alistbufferme;
 int metimeout = 0;
 int MEWorktodo_Samples = 0;
 int MEReadytoWork = 0;
-std::queue<u32> Address;
-std::queue<u32> Length;
+u32 Address[8 * 64] = { 1 };
+u32 Length[8 * 64] = { 1 };
+u32 JobType[8 * 64] = { 0 };
+unsigned int indexSample = 0;
+unsigned int indexJobType = 0;
+unsigned int JobFlavor = 0; //JobFlavors -> 1 = HLE 2 = Samples 
 
-
-//Not working ATM -> code matches what is done on SC. 
+//Add Buffer function fomated for the ME.
 int AddBufferME(){
-ac->AddBuffer(g_pu8RamBase + Address.front(), Length.front());
+
+if(indexSample == BuffIndexSample )
+return 0;
+
+ac->AddBuffer(g_pu8RamBase + Address[indexSample], Length[indexSample]);
+indexSample += IndexStepSample;
+indexJobType += IndexStepSample;
+
+return 0;
 }
 
 
-
+//Media Engine function -> Started on the ME at the first HLE request. 
 int MediaEngineFeeder(){
 
 	unsigned int index = 0;
 
-	while(MEStarted == true){
 
-		index = index&MEBUFFSZ_MASK;
+	while(MEStarted == true){
 
 		dcache_wbinv_all();
 
-		if(index <= BuffIndex){
+		index = index&MEBUFFSZ_MASK;
+		indexSample = indexSample&(8 * 64 - 1);
+		indexJobType = indexJobType&(8 * 64 - 1);
+
+		if(JobType[indexJobType] == 1 ){
+
 			memcpy(p_alistbufferme, &MEQueue[index], IndexStep);
 			Audio_Ucode();
 			index += IndexStep;
+			indexJobType += IndexStepSample;
+
 		}
-		
-			
-		if(!Address.empty()){
-				AddBufferME();
-				Address.pop();
-				Length.pop();
+
+		if(JobType[indexJobType] == 2 ){
+
+		AddBufferME();
+
+		}
+				
 					
-		}		
+				
 	}
 
 
 return 0;
 }
 
-
+//Checks and starts the Media Engine thread if needed. 
 void Run_Ucode_me(){
 
 	if(MEStarted == false ){
@@ -162,7 +183,6 @@ void Run_Ucode_me(){
 				MEStarted = true;
 				sceKernelDcacheWritebackInvalidateAll();
 				BeginME( mei, (int)&MediaEngineFeeder, (int)NULL, -1, NULL, -1, NULL);
-				
 
 			return;
 	}
@@ -174,11 +194,9 @@ void Run_Ucode_me(){
 
 void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
-	//sceKernelWaitSema( mSemaphore, 1, nullptr );
 
 	mAudioBufferUncached->Drain( buffer, num_samples );
-
-	//sceKernelSignalSema( mSemaphore, 1 );
+	
 }
 
 
@@ -257,9 +275,37 @@ void	AudioPluginPSP::LenChanged()
 		{
 			u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
 			u32	length = Memory_AI_GetRegister(AI_LEN_REG);
-			Address.emplace(address);
-			Length.emplace(length);
+
+			JobFlavor = 2;
+			
+			memcpy(&JobType[BuffindexJobType], &JobFlavor, IndexStepSample);
+			memcpy(&Address[BuffIndexSample], &address, IndexStepSample);
+			memcpy(&Length[BuffIndexSample], &length, IndexStepSample);
+
+			BuffindexJobType += IndexStepSample;
+			BuffIndexSample += IndexStepSample;
+			BuffIndexSample &= 8 * 64 -1;
+			BuffindexJobType &= 8 * 64 -1;
+
+			/*  
+				//PSP Async Debuging info 
+				pspDebugScreenSetTextColor( 0xffffffff );
+				pspDebugScreenSetBackColor(0);
+				pspDebugScreenSetXY(0, 20);
+				pspDebugScreenPrintf( "Sample Length %d", Length[BuffIndexSample]);
+				pspDebugScreenSetXY(0, 22);
+				pspDebugScreenPrintf( "Sample address %d", Address[BuffIndexSample]);
+				pspDebugScreenSetXY(0, 25);
+				pspDebugScreenPrintf( "Buffer Index Samples %d",BuffIndexSample);
+				pspDebugScreenSetXY(0, 28);
+				pspDebugScreenPrintf( "ME HLE INDEX %d",index);
+				pspDebugScreenSetXY(0, 30);
+				pspDebugScreenPrintf( "ME Index Samples %d",indexSample);
+
+			*/
+
 			sceKernelDcacheWritebackInvalidateAll();
+			
 
 		}
 		break;
@@ -326,6 +372,10 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 		case APM_ENABLED_ASYNC:
 			{
 			PrepDataUcode();
+			JobFlavor = 1;
+			memcpy(&JobType[BuffindexJobType], &JobFlavor, IndexStepSample);
+			BuffindexJobType += IndexStepSample;
+			BuffindexJobType &= 8 * 64 -1;
 			sceKernelDcacheWritebackInvalidateAll();
 			Run_Ucode_me();
 			}
@@ -333,7 +383,13 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 			break;
 
 		case APM_ENABLED_SYNC:
-			Audio_Ucode();
+			PrepDataUcode();
+			JobFlavor = 1;
+			memcpy(&JobType[BuffindexJobType], &JobFlavor, IndexStepSample);
+			BuffindexJobType += IndexStepSample;
+			BuffindexJobType &= 8 * 64 -1;
+			sceKernelDcacheWritebackInvalidateAll();
+			Run_Ucode_me();
 			result = PR_COMPLETED;
 			break;
 	}
@@ -404,15 +460,7 @@ void AudioPluginPSP::StopAudio()
 	#ifdef DAEDALUS_PSP_USE_ME
 
 	MEStarted = false;
-
-  	/*while(!MEQueue.empty()){
-	  	MEQueue.pop();
-  	}*/
-
-  	while(!Address.empty()){
-	 	Address.pop();
-	  	Length.pop();
-  	}
+	sceKernelDcacheWritebackInvalidateAll();
 
  	 #endif
 
