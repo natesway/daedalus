@@ -147,7 +147,7 @@ void PrepDataUcode(){
 
 	//MEQueue[BuffIndex++&MEBUFFSZ_MASK] = *pTask;
 
-	memcpy(&MEQueue[BuffIndex], pTask, IndexStep);
+	memcpy_vfpu(&MEQueue[BuffIndex], pTask, IndexStep);
 
 	BuffIndex += IndexStep;
 	BuffIndex &= MEBUFFSZ_MASK;

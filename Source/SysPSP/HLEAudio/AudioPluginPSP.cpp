@@ -47,8 +47,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/Thread.h"
 #include "SysPSP/PRX/MediaEngine/me.h"
 #include "SysPSP/Utility/ModulePSP.h"
-#include <queue>
 #include "Ultra/ultra_sptask.h"
+#include "Utility/FastMemcpy.h"
 
 #define RSP_AUDIO_INTR_CYCLES     1
 extern u32 gSoundSync;
@@ -120,15 +120,13 @@ int MEReadytoWork = 0;
 u32 Address[8 * 64] = { 1 };
 u32 Length[8 * 64] = { 1 };
 u32 JobType[8 * 64] = { 0 };
+unsigned int indexHLE = 0;
 unsigned int indexSample = 0;
 unsigned int indexJobType = 0;
 unsigned int JobFlavor = 0; //JobFlavors -> 1 = HLE 2 = Samples 
 
 //Add Buffer function fomated for the ME.
 int AddBufferME(){
-
-if(indexSample == BuffIndexSample )
-return 0;
 
 ac->AddBuffer(g_pu8RamBase + Address[indexSample], Length[indexSample]);
 indexSample += IndexStepSample;
@@ -141,22 +139,21 @@ return 0;
 //Media Engine function -> Started on the ME at the first HLE request. 
 int MediaEngineFeeder(){
 
-	unsigned int index = 0;
 
 
 	while(MEStarted == true){
 
 		dcache_wbinv_all();
 
-		index = index&MEBUFFSZ_MASK;
+		indexHLE = indexHLE&MEBUFFSZ_MASK;
 		indexSample = indexSample&(8 * 64 - 1);
 		indexJobType = indexJobType&(8 * 64 - 1);
 
 		if(JobType[indexJobType] == 1 ){
 
-			memcpy(p_alistbufferme, &MEQueue[index], IndexStep);
+			memcpy(p_alistbufferme, &MEQueue[indexHLE], IndexStep);
 			Audio_Ucode();
-			index += IndexStep;
+			indexHLE += IndexStep;
 			indexJobType += IndexStepSample;
 
 		}
@@ -278,16 +275,16 @@ void	AudioPluginPSP::LenChanged()
 
 			JobFlavor = 2;
 			
-			memcpy(&JobType[BuffindexJobType], &JobFlavor, IndexStepSample);
-			memcpy(&Address[BuffIndexSample], &address, IndexStepSample);
-			memcpy(&Length[BuffIndexSample], &length, IndexStepSample);
+			memcpy_vfpu(&JobType[BuffindexJobType], &JobFlavor, IndexStepSample);
+			memcpy_vfpu(&Address[BuffIndexSample], &address, IndexStepSample);
+			memcpy_vfpu(&Length[BuffIndexSample], &length, IndexStepSample);
 
 			BuffindexJobType += IndexStepSample;
 			BuffIndexSample += IndexStepSample;
 			BuffIndexSample &= 8 * 64 -1;
 			BuffindexJobType &= 8 * 64 -1;
 
-			/*  
+			
 				//PSP Async Debuging info 
 				pspDebugScreenSetTextColor( 0xffffffff );
 				pspDebugScreenSetBackColor(0);
@@ -298,11 +295,11 @@ void	AudioPluginPSP::LenChanged()
 				pspDebugScreenSetXY(0, 25);
 				pspDebugScreenPrintf( "Buffer Index Samples %d",BuffIndexSample);
 				pspDebugScreenSetXY(0, 28);
-				pspDebugScreenPrintf( "ME HLE INDEX %d",index);
+				pspDebugScreenPrintf( "ME HLE INDEX %d",indexHLE);
 				pspDebugScreenSetXY(0, 30);
 				pspDebugScreenPrintf( "ME Index Samples %d",indexSample);
 
-			*/
+			
 
 			sceKernelDcacheWritebackInvalidateAll();
 			
