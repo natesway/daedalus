@@ -58,7 +58,7 @@ BOOL WINAPI DllMain(
 }
 #endif
 
-//EXPORT void CALL DllAbout(HWND hParent) {
+void DllAbout(HWND hParent) {
 #if defined(_WIN32) || defined(_XBOX)
 	Configuration::AboutDialog(hParent);
 #else
@@ -66,7 +66,7 @@ BOOL WINAPI DllMain(
 #endif
 }
 
-//EXPORT void CALL DllConfig(HWND hParent)
+void DllConfig(HWND hParent)
 {
 #if defined(_WIN32) && !defined(_XBOX)
 	SoundDriverType currentDriver = Configuration::getDriver();
@@ -80,7 +80,7 @@ BOOL WINAPI DllMain(
 #endif
 }
 
-//EXPORT void CALL DllTest(HWND hParent) {
+void DllTest(HWND hParent) {
 #if defined(_WIN32)
 	MessageBoxA(hParent, "Nothing to test yet... ", "Test Box", MB_OK);
 #else
@@ -129,7 +129,7 @@ u32 Dacrate = 0;
 	return TRUE;
 }
 
-//EXPORT void CALL CloseDLL(void) {
+void CloseDLL(void) {
 	DEBUG_OUTPUT("Call: CloseDLL()\n");
 	if (snd != NULL)
 	{
@@ -139,7 +139,7 @@ u32 Dacrate = 0;
 	}
 }
 
-//EXPORT void CALL GetDllInfo(PLUGIN_INFO * PluginInfo) {
+void GetDllInfo(PLUGIN_INFO * PluginInfo) {
 	PluginInfo->MemoryBswaped = TRUE;
 	PluginInfo->NormalMemory  = FALSE;
 	safe_strcpy(PluginInfo->Name, 100, PLUGIN_VERSION);
@@ -147,13 +147,13 @@ u32 Dacrate = 0;
 	PluginInfo->Version = 0x0101; // Set this to retain backwards compatibility
 }
 
-//EXPORT void CALL ProcessAList(void) {
+void ProcessAList(void) {
 	if (snd == NULL)
 		return;
 	HLEStart ();
 }
 
-//EXPORT void CALL RomOpen(void) 
+void RomOpen(void) 
 {
 	DEBUG_OUTPUT("Call: RomOpen()\n");
 	if (snd == NULL)
@@ -161,7 +161,7 @@ u32 Dacrate = 0;
 	//snd->AI_ResetAudio();
 }
 
-//EXPORT void CALL RomClosed(void) 
+void RomClosed(void) 
 {
 	DEBUG_OUTPUT("Call: RomClosed()\n");
 	Dacrate = 0; // Forces a revisit to initialize audio
@@ -181,7 +181,7 @@ u32 Dacrate = 0;
 	}
 }
 
-//EXPORT void CALL AiDacrateChanged(int SystemType) {
+void AiDacrateChanged(int SystemType) {
 	u32 Frequency, video_clock;
 
 	ai_delayed_carry = false;
@@ -230,7 +230,7 @@ u32 Dacrate = 0;
 	snd->AI_SetFrequency(Frequency);
 }
 
-//EXPORT void CALL AiLenChanged(void) 
+void AiLenChanged(void) 
 {
 	u32 address = (*AudioInfo.AI_DRAM_ADDR_REG & 0x00FFFFF8);
 	u32 length = (*AudioInfo.AI_LEN_REG & 0x3FFF8);
@@ -249,14 +249,14 @@ u32 Dacrate = 0;
 	snd->AI_LenChanged(AudioInfo.RDRAM + address, length);
 }
 
-//EXPORT u32 CALL AiReadLength(void) {
+u32  AiReadLength(void) {
 	if (snd == NULL)
 		return 0;
 	*AudioInfo.AI_LEN_REG = snd->AI_ReadLength();
 	return *AudioInfo.AI_LEN_REG;
 }
 
-//EXPORT void CALL AiUpdate(Boolean Wait) {
+void AiUpdate(Boolean Wait) {
 	static int intCount = 0;
 
 	if (snd == NULL)

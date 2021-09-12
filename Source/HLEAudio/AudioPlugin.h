@@ -39,9 +39,9 @@ public:
 		ST_MPAL,
 	};
 
-	virtual void			DacrateChanged( int SystemType ) = 0;
-	virtual void			LenChanged() = 0;
-	virtual u32				ReadLength() = 0;
+	virtual void			AiDacrateChanged( int SystemType ) = 0;
+	virtual void			AiLenChanged() = 0;
+	virtual u32				AiReadLength() = 0;
 	virtual EProcessResult	ProcessAList() = 0;
 #ifdef DAEDALUS_W32
 	virtual void			Update( bool wait ) = 0;

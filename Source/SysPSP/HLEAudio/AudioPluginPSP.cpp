@@ -39,7 +39,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/ROM.h"
 #include "Core/RSP_HLE.h"
 #include "Debug/DBGConsole.h"
-#include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/AudioBuffer.h"
 #include "HLEAudio/AudioPlugin.h"
 #include "HLEAudio/audiohle.h"
@@ -72,9 +71,9 @@ public:
 	virtual bool			StartEmulation();
 	virtual void			StopEmulation();
 
-	virtual void			DacrateChanged( int system_type );
-	virtual void			LenChanged();
-	virtual u32				ReadLength() {return 0;}
+	virtual void			AiDacrateChanged( int system_type );
+	virtual void			AiLenChanged();
+	virtual u32				AiReadLength() {return 0;}
 	virtual EProcessResult	ProcessAList();
 
 	//virtual void SetFrequency(u32 frequency);
@@ -197,7 +196,7 @@ void	AudioPluginPSP::StopEmulation()
 
 }
 
-void	AudioPluginPSP::DacrateChanged( int system_type )
+void	AudioPluginPSP::AiDacrateChanged( int system_type )
 {
 	u32 clock = (system_type == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK;
 	u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
@@ -208,7 +207,7 @@ void	AudioPluginPSP::DacrateChanged( int system_type )
 }
 
 
-void	AudioPluginPSP::LenChanged()
+void AudioPluginPSP::AiLenChanged()
 {
 	if( gAudioPluginEnabled > APM_DISABLED )
 	{

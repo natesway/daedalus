@@ -44,7 +44,7 @@ TEST_DISABLE_AI_FUNCS
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( gAudioPlugin, "Audio plugin is not initialized");
 	#endif
-	gAudioPlugin->LenChanged();
+	gAudioPlugin->AiLenChanged();
 
 	// Return 0 if succesfully DMA'd audio, otherwise -1 if busy
 	gGPR[REG_v0]._s64 = 0;

@@ -90,7 +90,7 @@ typedef struct {
                SYSTEM_MPAL	2
   output:   none
 *******************************************************************/ 
-//EXPORT void CALL AiDacrateChanged(int SystemType);
+void AiDacrateChanged(int SystemType);
 
 /******************************************************************
   Function: AiLenChanged
@@ -99,7 +99,7 @@ typedef struct {
   input:    none
   output:   none
 *******************************************************************/ 
-//EXPORT void CALL AiLenChanged(void);
+ void AiLenChanged(void);
 
 /******************************************************************
   Function: AiReadLength
@@ -108,7 +108,7 @@ typedef struct {
   input:    none
   output:   The amount of bytes still left to play.
 *******************************************************************/ 
-//EXPORT u32 CALL AiReadLength(void);
+u32 AiReadLength(void);
 
 /******************************************************************
   Function: AiUpdate
@@ -122,7 +122,7 @@ typedef struct {
             till there is a message in the its message queue.
   output:   none
 *******************************************************************/ 
-//EXPORT void CALL AiUpdate(Boolean Wait);
+void AiUpdate(Boolean Wait);
 
 /******************************************************************
   Function: CloseDLL
@@ -131,7 +131,7 @@ typedef struct {
   input:    none
   output:   none
 *******************************************************************/ 
-//EXPORT void CALL CloseDLL(void);
+void CloseDLL(void);
 
 /******************************************************************
   Function: DllAbout
@@ -140,7 +140,7 @@ typedef struct {
   input:    a handle to the window that calls this function
   output:   none
 *******************************************************************/ 
-//EXPORT void CALL DllAbout(HWND hParent);
+void DllAbout(HWND hParent);
 
 /******************************************************************
   Function: DllConfig
@@ -149,7 +149,7 @@ typedef struct {
   input:    a handle to the window that calls this function
   output:   none
 *******************************************************************/ 
-//EXPORT void CALL DllConfig(HWND hParent);
+void DllConfig(HWND hParent);
 
 /******************************************************************
   Function: DllTest
@@ -158,7 +158,7 @@ typedef struct {
   input:    a handle to the window that calls this function
   output:   none
 *******************************************************************/ 
-//EXPORT void CALL DllTest(HWND hParent);
+void DllTest(HWND hParent);
 
 /******************************************************************
   Function: GetDllInfo
@@ -168,7 +168,7 @@ typedef struct {
             filled by the function. (see def above)
   output:   none
 *******************************************************************/ 
-//EXPORT void CALL GetDllInfo(PLUGIN_INFO * PluginInfo);
+void GetDllInfo(PLUGIN_INFO * PluginInfo);
 
 /******************************************************************
   Function: InitiateSound
@@ -195,7 +195,7 @@ typedef struct {
   input:    none
   output:   none
 *******************************************************************/ 
-//EXPORT void CALL ProcessAList(void);
+void ProcessAList(void);
 
 /******************************************************************
   Function: RomClosed
@@ -203,11 +203,11 @@ typedef struct {
   input:    none
   output:   none
 *******************************************************************/ 
-//EXPORT void CALL RomClosed(void);
-//EXPORT void CALL RomOpen(void);
-//EXPORT void CALL PluginLoaded(void);
+void RomClosed(void);
+void RomOpen(void);
+void PluginLoaded(void);
 
-//EXPORT void CALL AiCallBack(void);
+void AiCallBack(void);
 
 extern AUDIO_INFO AudioInfo;
 
