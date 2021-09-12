@@ -42,6 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/AudioBuffer.h"
 #include "HLEAudio/AudioPlugin.h"
+#include "HLEAudio/audiohle.h"
 #include "SysPSP/Utility/JobManager.h"
 #include "SysPSP/Utility/CacheUtil.h"
 #include "SysPSP/Utility/JobManager.h"
@@ -186,7 +187,7 @@ bool		AudioPluginPSP::StartEmulation()
 
 void	AudioPluginPSP::StopEmulation()
 {
-    Audio_Reset();
+    //Audio_Reset();
   	StopAudio();
     sceKernelDeleteSema(mSemaphore);
     pspAudioEndPre();
@@ -249,7 +250,7 @@ public:
 
 	int DoHLEStart()
 	{
-		Audio_Ucode();
+		HLEStart();
 		return 0;
 	}
 
@@ -280,7 +281,7 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 			result = PR_STARTED;
 			break;
 		case APM_ENABLED_SYNC:
-			Audio_Ucode();
+			HLEStart();
 			result = PR_COMPLETED;
 			break;
 	}
