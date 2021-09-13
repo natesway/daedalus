@@ -93,6 +93,6 @@ public:
 
 };
 
-extern AudioHLEState gAudioHLEState;
+AudioHLEState gAudioHLEState;
 
 #endif // HLEAUDIO_AUDIOHLEPROCESSOR_H_

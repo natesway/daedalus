@@ -10,6 +10,7 @@
 ****************************************************************************/
 
 #include "audiohle.h"
+#include "HLEAudio/HLEAudioState.h"
 
 void ADDMIXER() {
 	s16 Count = (k0 >> 12) & 0x0FF0;
@@ -75,17 +76,17 @@ void INTERL2() {
 	s16 Count = k0 & 0xFFFF;
 	u16 Out = t9 & 0xffff;
 	u16 In  = (t9 >> 16);
-	u8* src;
-	u8* dst;
-
-	src = &BufferSpace[0];//[In];
-	dst = &BufferSpace[0];//[Out];
+	s16* src;
+	s16* dst;
+	src = (s16 *)(gAudioHLEState.Buffer + In);
+	dst = (s16 *)(gAudioHLEState.Buffer + Out);
 	while (Count != 0) {
 		*(s16 *)(dst + BES(Out)) = *(s16 *)(src + BES(In));
 		Out += 2;
 		In += 4;
 		Count--;
 	}
+	
 }
 
 void INTERLEAVE2() { // Needs accuracy verification...
