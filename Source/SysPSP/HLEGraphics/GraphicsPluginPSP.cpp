@@ -279,7 +279,6 @@ void CGraphicsPluginImpl::RomClosed()
 	DBGConsole_Msg(0, "Finalising PSPGraphics");
 	#endif
 	DLParser_Finalise();
-	CTextureCache::Destroy();
 	DestroyRenderer();
 }
 

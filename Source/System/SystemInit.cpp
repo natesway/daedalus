@@ -156,7 +156,7 @@ static void Profiler_Fini()
 static const SysEntityEntry gSysInitTable[] =
 {
 #ifdef DAEDALUS_DEBUG_CONSOLE
-	{"DebugConsole",		CDebugConsole::Create,		CDebugConsole::Destroy},
+	{"DebugConsole",		CDebugConsole::Create},
 #endif
 #ifdef DAEDALUS_LOG
 	{"Logger",				Debug_InitLogging,			Debug_FinishLogging},
@@ -164,21 +164,21 @@ static const SysEntityEntry gSysInitTable[] =
 #ifdef DAEDALUS_ENABLE_PROFILING
 	{"Profiler",			Profiler_Init,				Profiler_Fini},
 #endif
-	{"ROM Database",		CRomDB::Create,				CRomDB::Destroy},
-	{"ROM Settings",		CRomSettingsDB::Create,		CRomSettingsDB::Destroy},
-	{"InputManager",		CInputManager::Create,		CInputManager::Destroy},
+	{"ROM Database",		CRomDB::Create,				},
+	{"ROM Settings",		CRomSettingsDB::Create},
+	{"InputManager",		CInputManager::Create},
 #ifdef DAEDALUS_PSP
-	{"VideoMemory",			CVideoMemoryManager::Create, NULL},
+	{"VideoMemory",			CVideoMemoryManager::Create},
 #endif
-	{"GraphicsContext",		CGraphicsContext::Create,	CGraphicsContext::Destroy},
+	{"GraphicsContext",		CGraphicsContext::Create},
 #ifdef DAEDALUS_PSP
 	{"Language",			Translate_Init,				NULL},
 #endif
-	{"Preference",			CPreferences::Create,		CPreferences::Destroy},
+	{"Preference",			CPreferences::Create},
 	{"Memory",				Memory_Init,				Memory_Fini},
 
-	{"Controller",			CController::Create,		CController::Destroy},
-	{"RomBuffer",			RomBuffer::Create,			RomBuffer::Destroy},
+	{"Controller",			CController::Create},
+	{"RomBuffer",			RomBuffer::Create},
 
 #if defined(DAEDALUS_POSIX) || defined(DAEDALUS_W32)
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

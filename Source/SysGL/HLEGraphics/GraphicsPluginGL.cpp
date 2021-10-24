@@ -189,7 +189,7 @@ void CGraphicsPluginImpl::RomClosed()
 {
 	DBGConsole_Msg(0, "Finalising GLGraphics");
 	DLParser_Finalise();
-	CTextureCache::Destroy();
+
 	DestroyRenderer();
 }
 

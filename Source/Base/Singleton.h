@@ -44,7 +44,6 @@
 template < class T > class CSingleton
 {
 	public:
-		~CSingleton() {}
 		static T& Get();
 		static bool Create();
 
