@@ -54,12 +54,12 @@ public:
 	CAutoProfile( SProfileItemHandle handle )
 		:	mHandle( handle )
 	{
-		CProfiler::Get()->Enter( mHandle );
+		CProfiler::Get().Enter( mHandle );
 	}
 
 	~CAutoProfile()
 	{
-		CProfiler::Get()->Exit( mHandle );
+		CProfiler::Get().Exit( mHandle );
 	}
 
 private:
@@ -74,7 +74,7 @@ private:
 #ifdef DAEDALUS_ENABLE_PROFILING
 
 #define DAEDALUS_PROFILE( x )											\
-	static	SProfileItemHandle		_profile_item( CProfiler::Get()->AddItem( x ) );	\
+	static	SProfileItemHandle		_profile_item( CProfiler::Get().AddItem( x ) );	\
 	CAutoProfile					_auto_profile( _profile_item );
 
 #else

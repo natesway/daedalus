@@ -40,7 +40,7 @@ class CDebugConsole : public CSingleton< CDebugConsole >
 		virtual void							MsgOverwriteEnd() = 0;
 };
 
-#define DBGConsole_Msg( type, ... )			CDebugConsole::Get()->Msg( type, __VA_ARGS__ )
+#define DBGConsole_Msg( type, ... )			CDebugConsole::Get().Msg( type, __VA_ARGS__ )
 
 #else
 

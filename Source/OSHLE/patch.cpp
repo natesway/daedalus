@@ -499,7 +499,7 @@ void Patch_RecurseAndFind()
 	nFound = 0;
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
-	CDebugConsole::Get()->MsgOverwriteStart();
+	CDebugConsole::Get().MsgOverwriteStart();
 #else
 #ifdef DAEDALUS_PSP
 	// Load our font here, Intrafont used in UI is destroyed when emulation starts
@@ -513,19 +513,19 @@ void Patch_RecurseAndFind()
 	{
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
-		CDebugConsole::Get()->MsgOverwrite(0, "OS HLE: %d / %d Looking for [G%s]",
+		CDebugConsole::Get().MsgOverwrite(0, "OS HLE: %d / %d Looking for [G%s]",
 			i, nPatchSymbols, g_PatchSymbols[i]->Name);
 		fflush(stdout);
 #else
 #ifdef DAEDALUS_PSP
 		//Update patching progress on PSPscreen
-		CGraphicsContext::Get()->BeginFrame();
-		CGraphicsContext::Get()->ClearToBlack();
+		CGraphicsContext::Get().BeginFrame();
+		CGraphicsContext::Get().ClearToBlack();
 		//intraFontPrintf( ltn8, 480/2, (272>>1)-50, "Searching for os functions. This may take several seconds...");
 		intraFontPrintf( ltn8, 480/2, (272>>1), "OS HLE Patching: %d%%", i * 100 / (nPatchSymbols-1));
 		intraFontPrintf( ltn8, 480/2, (272>>1)-50, "Searching for %s", g_PatchSymbols[i]->Name );
-		CGraphicsContext::Get()->EndFrame();
-		CGraphicsContext::Get()->UpdateFrame( true );
+		CGraphicsContext::Get().EndFrame();
+		CGraphicsContext::Get().UpdateFrame( true );
 #endif
 #endif //DAEDALUS_DEBUG_CONSOLE
 		// Skip symbol if already found, or if it is a variable
@@ -541,17 +541,17 @@ void Patch_RecurseAndFind()
 	if ( gCPUState.IsJobSet( CPU_STOP_RUNNING ) )
 	{
 #ifdef DAEDALUS_DEBUG_CONSOLE
-		CDebugConsole::Get()->MsgOverwrite( 0, "OS HLE: Aborted" );
-		CDebugConsole::Get()->MsgOverwriteEnd();
+		CDebugConsole::Get().MsgOverwrite( 0, "OS HLE: Aborted" );
+		CDebugConsole::Get().MsgOverwriteEnd();
 #endif
 
 		return;
 	}
 #ifdef DAEDALUS_DEBUG_CONSOLE
-	CDebugConsole::Get()->MsgOverwrite(0, "OS HLE: %d / %d All done",
+	CDebugConsole::Get().MsgOverwrite(0, "OS HLE: %d / %d All done",
 		nPatchSymbols, nPatchSymbols);
 
-	CDebugConsole::Get()->MsgOverwriteEnd();
+	CDebugConsole::Get().MsgOverwriteEnd();
 #endif
 
 	first = u32(~0);
@@ -616,12 +616,12 @@ void Patch_RecurseAndFind()
 #else
 #ifdef DAEDALUS_PSP
 		//Update patching progress on PSPscreen
-		CGraphicsContext::Get()->BeginFrame();
-		CGraphicsContext::Get()->ClearToBlack();
+		CGraphicsContext::Get().BeginFrame();
+		CGraphicsContext::Get().ClearToBlack();
 		intraFontPrintf( ltn8, 480/2, (272>>1), "Symbols Identified: %d%%", 100 * nFound / (nPatchSymbols-1));
 		intraFontPrintf( ltn8, 480/2, (272>>1)+50, "Range 0x%08x -> 0x%08x", first, last );
-		CGraphicsContext::Get()->EndFrame();
-		CGraphicsContext::Get()->UpdateFrame( true );
+		CGraphicsContext::Get().EndFrame();
+		CGraphicsContext::Get().UpdateFrame( true );
 #endif
 #endif
 	}
@@ -659,11 +659,11 @@ void Patch_RecurseAndFind()
 #else
 #ifdef DAEDALUS_PSP
 		//Update patching progress on PSPscreen
-		CGraphicsContext::Get()->BeginFrame();
-		CGraphicsContext::Get()->ClearToBlack();
+		CGraphicsContext::Get().BeginFrame();
+		CGraphicsContext::Get().ClearToBlack();
 		intraFontPrintf( ltn8, 480/2, 272>>1, "Variables Identified: %d%%", 100 * nFound / (nPatchVariables-1) );
-		CGraphicsContext::Get()->EndFrame();
-		CGraphicsContext::Get()->UpdateFrame( true );
+		CGraphicsContext::Get().EndFrame();
+		CGraphicsContext::Get().UpdateFrame( true );
 #endif
 #endif
 	}

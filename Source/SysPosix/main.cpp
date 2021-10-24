@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 						++i;
 
 						char* dir = realpath(relative_path, nullptr);
-						CRomDB::Get()->AddRomDirectory(dir);
+						CRomDB::Get().AddRomDirectory(dir);
 						free(dir);
 					}
 				}
@@ -114,8 +114,8 @@ int main(int argc, char **argv)
 			//
 			// Commit the preferences and roms databases before starting to run
 			//
-			CRomDB::Get()->Commit();
-			//CPreferences::Get()->Commit();
+			CRomDB::Get().Commit();
+			//CPreferences::Get().Commit();
 
 			CPU_Run();
 			System_Close();

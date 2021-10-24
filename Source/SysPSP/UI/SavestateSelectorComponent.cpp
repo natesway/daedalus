@@ -228,7 +228,7 @@ void ISavestateSelectorComponent::LoadSlots(){
 		RomID	rom_id( SaveState_GetRomID( filename_ss ) );
 		RomSettings	settings;
 		CUIElement *element;
-		if( !rom_id.Empty() && CRomSettingsDB::Get()->GetSettings( rom_id, &settings ) )
+		if( !rom_id.Empty() && CRomSettingsDB::Get().GetSettings( rom_id, &settings ) )
 		{
 			IO::File::Stat(filename_ss, &file_stat);
 			sprintf(date_string, "%02d/%02d/%d %02d:%02d:%02d", file_stat.sce_st_ctime.month,  file_stat.sce_st_ctime.day, file_stat.sce_st_ctime.year, file_stat.sce_st_ctime.hour, file_stat.sce_st_ctime.minute, file_stat.sce_st_ctime.second); // settings.GameName.c_str();

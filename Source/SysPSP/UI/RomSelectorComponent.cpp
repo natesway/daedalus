@@ -103,7 +103,7 @@ struct SRomInfo
 	{
 		if ( ROM_GetRomDetailsByFilename( filename, &mRomID, &mRomSize, &mCicType ) )
 		{
-			if ( !CRomSettingsDB::Get()->GetSettings( mRomID, &mSettings ) )
+			if ( !CRomSettingsDB::Get().GetSettings( mRomID, &mSettings ) )
 			{
 				// Create new entry, add
 				mSettings.Reset();
@@ -120,7 +120,7 @@ struct SRomInfo
 				}
 				game_name = game_name.substr(0, 63);
 				mSettings.GameName = game_name.c_str();
-				CRomSettingsDB::Get()->SetSettings( mRomID, mSettings );
+				CRomSettingsDB::Get().SetSettings( mRomID, mSettings );
 			}
 		}
 		else

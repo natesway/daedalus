@@ -229,7 +229,7 @@ void DLDebugger_ProcessDebugTask()
 						tile_size.GetHeight() > 0)
 					{
 						const TextureInfo &  ti = gRDPStateManager.GetUpdatedTextureDescriptor(i);
-						CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture(ti);
+						CRefPtr<CNativeTexture> texture = CTextureCache::Get().GetOrCreateTexture(ti);
 						if (texture)
 						{
 							connection->WriteString("\t\t\"texture\": {\n");
@@ -263,7 +263,7 @@ void DLDebugger_ProcessDebugTask()
 
 				u32 width;
 				u32 height;
-				CGraphicsContext::Get()->GetScreenSize(&width, &height);
+				CGraphicsContext::Get().GetScreenSize(&width, &height);
 
 				// Make the BYTE array, factor of 3 because it's RBG.
 				void * pixels = malloc( 4 * width * height );
@@ -315,7 +315,7 @@ bool DLDebugger_Process()
 		DLParser_Process(gInstructionCountLimit, NULL);
 		DLDebugger_ProcessDebugTask();
 
-		CGraphicsContext::Get()->UpdateFrame( false );
+		CGraphicsContext::Get().UpdateFrame( false );
 
 		// FIXME: shouldn't need to do this, just wake up when there's incoming WebDebug request.
 		ThreadSleepMs(10);

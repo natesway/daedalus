@@ -34,7 +34,7 @@
 //
 // CMyUniqueClass::Create();
 // ..
-// CMyUniqueClass::Get()->DoSomething();
+// CMyUniqueClass::Get().DoSomething();
 // etc
 // ..
 // CMyUniqueClass::Destroy();
@@ -44,47 +44,49 @@
 template < class T > class CSingleton
 {
 	public:
-		//CSingleton();
-		virtual ~CSingleton() {}
-
-		inline static T * Get()
-		{
-			#ifdef DAEDALUS_ENABLE_ASSERTS
-			DAEDALUS_ASSERT(mpInstance != NULL, "%s", __PRETTY_FUNCTION__ );
-			#endif
-			return mpInstance;
-		}
-
-
+		~CSingleton() {}
+		static T& Get();
 		static bool Create();
 
 
-		static void Destroy()
-		{
-			#ifdef DAEDALUS_ENABLE_ASSERTS
-			DAEDALUS_ASSERT_Q(mpInstance != NULL);
-			#endif
-			delete mpInstance;
-			mpInstance = NULL;
-		}
-
-		inline static bool IsAvailable()
-		{
-			return (mpInstance != NULL);
-		}
-
-		static void Attach( T * p )
-		{
-			#ifdef DAEDALUS_ENABLE_ASSERTS
-			DAEDALUS_ASSERT_Q(mpInstance == NULL);
-			#endif
-			mpInstance = p;
-		}
-
-	protected:
-		static T * mpInstance;
+	protected: 
+		static T * mpInstance ;
 };
 
+
+template<typename T>
+T& CSingleton<T>::Get()
+{	
+	return *mpInstance;
+}
+
+
 template < class T > T * CSingleton< T >::mpInstance = NULL;
+
+
+
+
+// template <typename T>
+// class CSingleton {
+// 	public:
+// 		static T& mpInstance();
+// 		static T& Destroy();
+// 		static bool Create();
+// 	protected:
+// 		struct token {};
+// 		CSingleton() {};
+
+// };
+
+
+// template<typename T>
+// T& CSingleton<T>::mpInstance()
+// {
+// 	static T mpInstance{token{}};
+// 	return mpInstance;
+
+// }
+
+
 
 #endif // UTILITY_SINGLETON_H_

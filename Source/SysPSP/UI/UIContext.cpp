@@ -148,10 +148,10 @@ IUIContext::~IUIContext()
 	// Clear everything to black
 	for( u32 i = 0; i < 2; ++i )
 	{
-		CGraphicsContext::Get()->BeginFrame();
-		CGraphicsContext::Get()->ClearToBlack();
-		CGraphicsContext::Get()->EndFrame();
-		CGraphicsContext::Get()->UpdateFrame( false );
+		CGraphicsContext::Get().BeginFrame();
+		CGraphicsContext::Get().ClearToBlack();
+		CGraphicsContext::Get().EndFrame();
+		CGraphicsContext::Get().UpdateFrame( false );
 	}
 }
 
@@ -219,7 +219,7 @@ void	IUIContext::RenderTexture( const CNativeTexture * texture, const v2 & tl, c
 
 void	IUIContext::ClearBackground( c32 colour )
 {
-	CGraphicsContext::Get()->ClearColBufferAndDepth( colour );
+	CGraphicsContext::Get().ClearColBufferAndDepth( colour );
 }
 
 
@@ -416,12 +416,12 @@ s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width, u32 height, const c
 
 void	IUIContext::BeginRender()
 {
-	CGraphicsContext::Get()->BeginFrame();
+	CGraphicsContext::Get().BeginFrame();
 }
 
 
 void	IUIContext::EndRender()
 {
-	CGraphicsContext::Get()->EndFrame();
-	CGraphicsContext::Get()->UpdateFrame( true );
+	CGraphicsContext::Get().EndFrame();
+	CGraphicsContext::Get().UpdateFrame( true );
 }

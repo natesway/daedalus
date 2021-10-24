@@ -398,7 +398,7 @@ SProfileItemHandle * gpProfileItemHandles[ 256 ];
 #define PROFILE_DL_CMD( cmd )								\
 	if(gpProfileItemHandles[ (cmd) ] == NULL)				\
 	{														\
-		gpProfileItemHandles[ (cmd) ] = new SProfileItemHandle( CProfiler::Get()->AddItem( gUcodeName[ cmd ] ));		\
+		gpProfileItemHandles[ (cmd) ] = new SProfileItemHandle( CProfiler::Get().AddItem( gUcodeName[ cmd ] ));		\
 	}														\
 	CAutoProfile		_auto_profile( *gpProfileItemHandles[ (cmd) ] )
 
@@ -465,7 +465,7 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 {
 	DAEDALUS_PROFILE( "DLParser_Process" );
 
-	if ( !CGraphicsContext::Get()->IsInitialised() || !gRenderer )
+	if ( !CGraphicsContext::Get().IsInitialised() || !gRenderer )
 	{
 		return 0;
 	}
@@ -475,7 +475,7 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 	// to remove any stuff lingering on the screen.
 	if(gFirstCall)
 	{
-		CGraphicsContext::Get()->ClearAllSurfaces();
+		CGraphicsContext::Get().ClearAllSurfaces();
 
 		gFirstCall = false;
 	}
@@ -501,7 +501,7 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 
 	gRDPFrame++;
 
-	CTextureCache::Get()->PurgeOldTextures();
+	CTextureCache::Get().PurgeOldTextures();
 
 	// Initialise stack
 	gDlistStackPointer=0;
@@ -1040,7 +1040,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 	//Always clear Zbuffer if Depthbuffer is selected //Corn
 	if (g_DI.Address == g_CI.Address)
 	{
-		CGraphicsContext::Get()->ClearZBuffer();
+		CGraphicsContext::Get().ClearZBuffer();
 
 #ifdef DAEDALUS_PSP
 		if(gClearDepthFrameBuffer)
@@ -1096,7 +1096,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 			// Clear the screen if its just a large rectangle
 			if( (x1 - x0) == uViWidth && (y1 - y0) == uViHeight )
 			{
-				CGraphicsContext::Get()->ClearColBuffer( colour );
+				CGraphicsContext::Get().ClearColBuffer( colour );
 				DL_PF("    Clearing Colour Buffer");
 				return;
 			}

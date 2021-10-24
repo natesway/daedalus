@@ -285,7 +285,7 @@ CNativeTexture::CNativeTexture( u32 w, u32 h, ETextureFormat texture_format )
 
 	u32		bytes_required( GetBytesRequired() );
 
-	if( !CVideoMemoryManager::Get()->Alloc( bytes_required, &mpData, &mIsDataVidMem ) )
+	if( !CVideoMemoryManager::Get().Alloc( bytes_required, &mpData, &mIsDataVidMem ) )
 	{
 			#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Out of memory for texels ( %d bytes)", bytes_required );
@@ -294,7 +294,7 @@ CNativeTexture::CNativeTexture( u32 w, u32 h, ETextureFormat texture_format )
 	switch( texture_format )
 	{
 	case TexFmt_CI4_8888:
-		if( !CVideoMemoryManager::Get()->Alloc( kPalette4BytesRequired, &mpPalette, &mIsPaletteVidMem ) )
+		if( !CVideoMemoryManager::Get().Alloc( kPalette4BytesRequired, &mpPalette, &mIsPaletteVidMem ) )
 		{
 				#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR( "Out of memory for 4-bit palette, %d bytes", kPalette4BytesRequired );
@@ -303,7 +303,7 @@ CNativeTexture::CNativeTexture( u32 w, u32 h, ETextureFormat texture_format )
 		break;
 
 	case TexFmt_CI8_8888:
-		if( !CVideoMemoryManager::Get()->Alloc( kPalette8BytesRequired, &mpPalette, &mIsPaletteVidMem ) )
+		if( !CVideoMemoryManager::Get().Alloc( kPalette8BytesRequired, &mpPalette, &mIsPaletteVidMem ) )
 		{
 			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR( "Out of memory for 8-bit palette, %d bytes", kPalette8BytesRequired );
@@ -323,8 +323,8 @@ CNativeTexture::CNativeTexture( u32 w, u32 h, ETextureFormat texture_format )
 //*****************************************************************************
 CNativeTexture::~CNativeTexture()
 {
-	CVideoMemoryManager::Get()->Free( mpData );
-	CVideoMemoryManager::Get()->Free( mpPalette );
+	CVideoMemoryManager::Get().Free( mpData );
+	CVideoMemoryManager::Get().Free( mpPalette );
 }
 
 //*****************************************************************************

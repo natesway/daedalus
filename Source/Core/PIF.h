@@ -38,8 +38,8 @@ class CController : public CSingleton< CController >
 
 		virtual void			Process() = 0;
 
-		static bool				Reset() { return CController::Get()->OnRomOpen(); }
-		static void				RomClose() { CController::Get()->OnRomClose(); }
+		static bool				Reset() { return CController::Get().OnRomOpen(); }
+		static void				RomClose() { CController::Get().OnRomClose(); }
 };
 
 #endif // CORE_PIF_H_

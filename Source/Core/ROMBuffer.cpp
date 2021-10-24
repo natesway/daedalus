@@ -84,7 +84,7 @@ namespace
 			u8 *			p_temp_buffer( new u8[ TEMP_BUFFER_SIZE ] );
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
-			CDebugConsole::Get()->MsgOverwriteStart();
+			CDebugConsole::Get().MsgOverwriteStart();
 #endif
 
 			u32				offset( 0 );
@@ -96,7 +96,7 @@ namespace
 #ifdef DAEDALUS_DEBUG_CONSOLE
 				if ((offset % 0x8000) == 0)
 				{
-					CDebugConsole::Get()->MsgOverwrite(0, "Converted [M%d / %d] KB", offset /1024, total_length / 1024 );
+					CDebugConsole::Get().MsgOverwrite(0, "Converted [M%d / %d] KB", offset /1024, total_length / 1024 );
 				}
 #endif
 				u32			length_to_process( std::min( length_remaining, TEMP_BUFFER_SIZE ) );
@@ -117,8 +117,8 @@ namespace
 				length_remaining -= length_to_process;
 			}
 #ifdef DAEDALUS_DEBUG_CONSOLE
-			CDebugConsole::Get()->MsgOverwrite(0, "Converted [M%d / %d] KB", offset /1024, total_length / 1024 );
-			CDebugConsole::Get()->MsgOverwriteEnd();
+			CDebugConsole::Get().MsgOverwrite(0, "Converted [M%d / %d] KB", offset /1024, total_length / 1024 );
+			CDebugConsole::Get().MsgOverwriteEnd();
 #endif
 
 			fclose( fh );
@@ -202,7 +202,7 @@ bool RomBuffer::Open()
 	{
 		// Now, allocate memory for rom - round up to a 4 byte boundry
 		u32		size_aligned( AlignPow2( sRomSize, 4 ) );
-		u8 *	p_bytes( (u8*)CROMFileMemory::Get()->Alloc( size_aligned ) );
+		u8 *	p_bytes( (u8*)CROMFileMemory::Get().Alloc( size_aligned ) );
 
 #ifndef DAEDALUS_PSP
 		if( !p_rom_file->LoadData( sRomSize, p_bytes, messages ) )
@@ -210,7 +210,7 @@ bool RomBuffer::Open()
 			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "Failed to load [C%s]\n", filename);
 			#endif
-			CROMFileMemory::Get()->Free( p_bytes );
+			CROMFileMemory::Get().Free( p_bytes );
 			delete p_rom_file;
 			return false;
 		}
@@ -234,11 +234,11 @@ bool RomBuffer::Open()
 			offset += length_to_process;
 			length_remaining -= length_to_process;
 
-			CGraphicsContext::Get()->BeginFrame();
-			CGraphicsContext::Get()->ClearToBlack();
+			CGraphicsContext::Get().BeginFrame();
+			CGraphicsContext::Get().ClearToBlack();
 			intraFontPrintf( ltn8, 480/2, (272>>1), "Buffering ROM %d%%...", offset * 100 / sRomSize );
-			CGraphicsContext::Get()->EndFrame();
-			CGraphicsContext::Get()->UpdateFrame( false );
+			CGraphicsContext::Get().EndFrame();
+			CGraphicsContext::Get().UpdateFrame( false );
 		}
 
 		intraFontUnload( ltn8 );
@@ -316,7 +316,7 @@ void	RomBuffer::Close()
 {
 	if (spRomData)
 	{
-		CROMFileMemory::Get()->Free( spRomData );
+		CROMFileMemory::Get().Free( spRomData );
 		spRomData = nullptr;
 	}
 

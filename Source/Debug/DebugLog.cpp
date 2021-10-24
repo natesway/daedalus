@@ -47,7 +47,7 @@ bool Debug_InitLogging()
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	if ( CDebugConsole::IsAvailable() )
 	{
-		CDebugConsole::Get()->Msg( 0, "Creating Dump file '%s'", log_filename );
+		CDebugConsole::Get().Msg( 0, "Creating Dump file '%s'", log_filename );
 	}
 #endif
 	g_hOutputLog = fopen( log_filename, "w" );

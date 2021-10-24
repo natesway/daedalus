@@ -87,7 +87,7 @@ ROMFileCache::ROMFileCache()
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (1<<(sizeof(CacheIdx)*8)) > CACHE_SIZE, "Need to increase size of CacheIdx typedef to allow sufficient entries to be indexed" );
 #endif
-	mpStorage   = (u8*)CROMFileMemory::Get()->Alloc( STORAGE_BYTES );
+	mpStorage   = (u8*)CROMFileMemory::Get().Alloc( STORAGE_BYTES );
 	mpChunkInfo = new SChunkInfo[ CACHE_SIZE ];
 }
 
@@ -96,7 +96,7 @@ ROMFileCache::ROMFileCache()
 //*****************************************************************************
 ROMFileCache::~ROMFileCache()
 {
-	CROMFileMemory::Get()->Free( mpStorage );
+	CROMFileMemory::Get().Free( mpStorage );
 
 	delete [] mpChunkInfo;
 }

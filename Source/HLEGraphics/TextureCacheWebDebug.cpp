@@ -29,11 +29,11 @@ static void TextureHandler(void * arg, WebDebugConnection * connection)
 	// NB: maintain a lock for as long as we have a ref to any textures.
 	// If we delete textures on this thread, we'll crash OpenGL.
 	{
-		MutexLock lock(CTextureCache::Get()->GetDebugMutex());
+		MutexLock lock(CTextureCache::Get().GetDebugMutex());
 		CRefPtr<CNativeTexture> texture;
 		{
 			std::vector<CTextureCache::STextureInfoSnapshot> textures;
-			CTextureCache::Get()->Snapshot(lock, textures);
+			CTextureCache::Get().Snapshot(lock, textures);
 			for (size_t i = 0; i < textures.size(); ++i)
 			{
 				CTextureCache::STextureInfoSnapshot & snap = textures[i];
@@ -93,10 +93,10 @@ static void TextureCacheHandler(void * arg, WebDebugConnection * connection)
 	// NB: maintain a lock for as long as we have a ref to any textures.
 	// If we delete textures on this thread, we'll crash OpenGL.
 	{
-		MutexLock lock(CTextureCache::Get()->GetDebugMutex());
+		MutexLock lock(CTextureCache::Get().GetDebugMutex());
 
 		std::vector<CTextureCache::STextureInfoSnapshot> textures;
-		CTextureCache::Get()->Snapshot(lock, textures);
+		CTextureCache::Get().Snapshot(lock, textures);
 
 		for (size_t i = 0; i < textures.size(); ++i)
 		{

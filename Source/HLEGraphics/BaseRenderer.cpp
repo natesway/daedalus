@@ -252,7 +252,7 @@ void BaseRenderer::Reset()
 //*****************************************************************************
 void BaseRenderer::BeginScene()
 {
-	CGraphicsContext::Get()->BeginFrame();
+	CGraphicsContext::Get().BeginFrame();
 
 	RestoreRenderStates();
 
@@ -268,7 +268,7 @@ void BaseRenderer::BeginScene()
 //*****************************************************************************
 void BaseRenderer::EndScene()
 {
-	CGraphicsContext::Get()->EndFrame();
+	CGraphicsContext::Get().EndFrame();
 
 	//
 	//	Clear this, to ensure we're force to check for updates to it on the next frame
@@ -291,7 +291,7 @@ void BaseRenderer::InitViewport()
 	// Get the current display dimensions. This might change frame by frame e.g. if the window is resized.
 	u32 display_width  = 0;
 	u32 display_height = 0;
-	CGraphicsContext::Get()->ViewportType(&display_width, &display_height);
+	CGraphicsContext::Get().ViewportType(&display_width, &display_height);
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( display_width && display_height, "Unhandled viewport type" );
 #endif
@@ -1742,7 +1742,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 		}
 		else
 		{
-			CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
+			CRefPtr<CNativeTexture> texture = CTextureCache::Get().GetOrCreateTexture( ti );
 
 			if( texture != NULL && texture != mBoundTexture[ index ] )
 			{
@@ -1891,7 +1891,7 @@ void BaseRenderer::PrepareTexRectUVs(TexCoord * puv0, TexCoord * puv1)
 //*****************************************************************************
 CRefPtr<CNativeTexture> BaseRenderer::LoadTextureDirectly( const TextureInfo & ti )
 {
-	CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
+	CRefPtr<CNativeTexture> texture = CTextureCache::Get().GetOrCreateTexture( ti );
 	if (texture)
 	{
 		texture->InstallTexture();

@@ -279,8 +279,8 @@ void	IPauseScreen::Run()
 	mIsFinished = false;
 	CUIScreen::Run();
 
-	CGraphicsContext::Get()->SwitchToChosenDisplay();
-	CGraphicsContext::Get()->ClearAllSurfaces();
+	CGraphicsContext::Get().SwitchToChosenDisplay();
+	CGraphicsContext::Get().ClearAllSurfaces();
 }
 
 void IPauseScreen::OnResume()

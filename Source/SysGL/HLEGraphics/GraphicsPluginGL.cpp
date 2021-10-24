@@ -175,11 +175,11 @@ void CGraphicsPluginImpl::UpdateScreen()
 
 		if (gTakeScreenshot)
 		{
-			CGraphicsContext::Get()->DumpNextScreen();
+			CGraphicsContext::Get().DumpNextScreen();
 			gTakeScreenshot = false;
 		}
 
-		CGraphicsContext::Get()->UpdateFrame( false );
+		CGraphicsContext::Get().UpdateFrame( false );
 
 		LastOrigin = current_origin;
 	}
