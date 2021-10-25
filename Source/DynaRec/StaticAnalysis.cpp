@@ -719,10 +719,10 @@ void StaticAnalysis_Cop1_WInstr( OpCode op_code, RegisterUsage & recorder )
 {
 	switch ( op_code.cop1_funct )
 	{
-		case Cop1OpFunc_CVT_S:
+		case ECop1OpFunction::CVT_S:
 			StaticAnalysis_Cop1_W_CVT_S( op_code, recorder );
 			return;
-		case Cop1OpFunc_CVT_D:
+		case ECop1OpFunction::CVT_D:
 			StaticAnalysis_Cop1_W_CVT_D( op_code, recorder );
 			return;
 	}
@@ -744,10 +744,10 @@ void StaticAnalysis_Cop1_LInstr( OpCode op_code, RegisterUsage & recorder )
 {
 	switch ( op_code.cop1_funct )
 	{
-		case Cop1OpFunc_CVT_S:
+		case ECop1OpFunction::CVT_S:
 			StaticAnalysis_Cop1_L_CVT_S( op_code, recorder );
 			return;
-		case Cop1OpFunc_CVT_D:
+		case ECop1OpFunction::CVT_D:
 			StaticAnalysis_Cop1_L_CVT_D( op_code, recorder );
 			return;
 	}
