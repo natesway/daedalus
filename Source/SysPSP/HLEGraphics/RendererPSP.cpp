@@ -174,8 +174,8 @@ RendererPSP::RendererPSP()
 		CAlphaRenderSettings *	alpha_settings( new CAlphaRenderSettings( "Fill" ) );
 		CRenderSettingsModulate *	colour_settings( new CRenderSettingsModulate( "Fill" ) );
 
-		alpha_settings->AddTermConstant( new CBlendConstantExpressionValue( BC_SHADE ) );
-		colour_settings->AddTermConstant(  new CBlendConstantExpressionValue( BC_SHADE ) );
+		alpha_settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_SHADE ) );
+		colour_settings->AddTermConstant(  new CBlendConstantExpressionValue( EBlendConstant::BC_SHADE ) );
 
 		mFillBlendStates->SetAlphaSettings( alpha_settings );
 		mFillBlendStates->AddColourSettings( colour_settings );

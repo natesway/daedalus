@@ -131,7 +131,7 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 
 			}
 #ifndef DAEDALUS_SILENT
-			else if (op_code.op == OP_ADDIU || op_code.op == OP_DADDI || op_code.op == OP_ADDI || op_code.op == OP_DADDIU)
+			else if (op_code.op == OpCodeValue::ADDIU || op_code.op == OpCodeValue::DADDI || op_code.op == OpCodeValue::ADDI || op_code.op == OpCodeValue::DADDIU)
 			{	// We don't handle COPYREG SPEEDHACKS
 				mBranchDetails[ mActiveBranchIdx ].SpeedHack = SHACK_COPYREG;
 			}

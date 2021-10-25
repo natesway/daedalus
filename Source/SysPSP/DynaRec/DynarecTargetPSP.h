@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/R4300OpCode.h"
 
-enum EPspReg
+enum class EPspReg
 {
 	PspReg_R0 = 0, PspReg_AT, PspReg_V0, PspReg_V1,
 	PspReg_A0, PspReg_A1, PspReg_A2, PspReg_A3,
@@ -36,7 +36,7 @@ enum EPspReg
 	PspReg_GP, PspReg_SP, PspReg_S8, PspReg_RA,
 };
 
-enum EPspFloatReg
+enum class EPspFloatReg
 {
 	PspFloatReg_F00 = 0,PspFloatReg_F01, PspFloatReg_F02, PspFloatReg_F03, PspFloatReg_F04, PspFloatReg_F05, PspFloatReg_F06, PspFloatReg_F07,
 	PspFloatReg_F08,	PspFloatReg_F09, PspFloatReg_F10, PspFloatReg_F11, PspFloatReg_F12, PspFloatReg_F13, PspFloatReg_F14, PspFloatReg_F15,
@@ -46,7 +46,7 @@ enum EPspFloatReg
 };
 
 // Return true if this register is temporary (i.e. not saved across function calls)
-inline bool	PspReg_IsTemporary( EPspReg psp_reg )	{ return (0xB300FFFF >> psp_reg) & 1;}
+inline bool	PspReg_IsTemporary( EPspReg psp_reg )	{ return (0xB300FFFF >> static_cast<u32>(psp_reg)) & 1;}
 
 // Return true if this register dont need sign extension //Corn
 inline bool	N64Reg_DontNeedSign( EN64Reg n64_reg )	{ return (0x30000001 >> n64_reg) & 1;}

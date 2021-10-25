@@ -142,7 +142,7 @@ void	CAlphaRenderSettings::Finalise()
 {
 	if( mConstantExpression == NULL )
 	{
-		mConstantExpression = new CBlendConstantExpressionValue( BC_1 );
+		mConstantExpression = new CBlendConstantExpressionValue( EBlendConstant::BC_1 );
 	}
 }
 

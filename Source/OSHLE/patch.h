@@ -165,7 +165,7 @@ extern PatchVariable * g_PatchVariables[];
 inline OpCode GetCorrectOp( OpCode op_code )
 {
 #ifdef DAEDALUS_BREAKPOINTS_ENABLED
-	if (op_code.op == OP_DBG_BKPT)
+	if (op_code.op == OpCodeValue::DBG_BKPT)
 	{
 		u32 bp_index = op_code.bp_index;
 

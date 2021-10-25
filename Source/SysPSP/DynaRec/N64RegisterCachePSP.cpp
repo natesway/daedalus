@@ -32,7 +32,7 @@ void	CN64RegisterCachePSP::Reset()
 	{
 		for( u32 i {}; i < NUM_N64_REGS; ++i )
 		{
-			mRegisterCacheInfo[ i ][ lo_hi_idx ].PspRegister = PspReg_R0;
+			mRegisterCacheInfo[ i ][ lo_hi_idx ].PspRegister = EPspReg::PspReg_R0;
 			mRegisterCacheInfo[ i ][ lo_hi_idx ].Valid = false;
 			mRegisterCacheInfo[ i ][ lo_hi_idx ].Dirty = false;
 			mRegisterCacheInfo[ i ][ lo_hi_idx ].Known = false;
@@ -56,7 +56,7 @@ void	CN64RegisterCachePSP::ClearCachedReg( EN64Reg n64_reg, u32 lo_hi_idx )
 	DAEDALUS_ASSERT( IsCached( n64_reg, lo_hi_idx ), "This register is not currently cached" );
 	DAEDALUS_ASSERT( !IsDirty( n64_reg, lo_hi_idx ), "This register is being cleared while still dirty" );
 #endif
-	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].PspRegister = PspReg_R0;
+	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].PspRegister = EPspReg::PspReg_R0;
 	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].Valid = false;
 	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].Dirty = false;
 	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].Known = false;

@@ -43,7 +43,7 @@ public:
 
 		inline bool	IsCached( EN64Reg reg, u32 lo_hi_idx ) const
 		{
-			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister != PspReg_R0;
+			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister != EPspReg::PspReg_R0;
 		}
 
 		inline bool	IsValid( EN64Reg reg, u32 lo_hi_idx ) const

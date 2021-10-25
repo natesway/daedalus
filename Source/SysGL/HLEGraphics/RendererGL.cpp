@@ -754,13 +754,13 @@ static void InitBlenderMode()
 	// NB: If we're running in 1cycle mode, ignore the 2nd cycle.
 	u32 active_mode = (cycle_type == CYCLE_2CYCLE) ? blendmode : (blendmode & 0xcccc);
 
-	enum BlendType
+	enum class BlendType
 	{
-		kBlendModeOpaque,
-		kBlendModeAlphaTrans,
-		kBlendModeFade,
+		Opaque,
+		AlphaTrans,
+		Fade,
 	};
-	BlendType type = kBlendModeOpaque;
+	BlendType type = BlendType::Opaque;
 
 	// FIXME(strmnnrmn): lots of these need fog!
 
@@ -768,74 +768,74 @@ static void InitBlenderMode()
 	{
 	case 0x0040: // In * AIn + Mem * 1-A
 		// MarioKart (spinning logo).
-		type = kBlendModeAlphaTrans;
+		type = BlendType::AlphaTrans;
 		break;
 	case 0x0050: // In * AIn + Mem * 1-A | In * AIn + Mem * 1-A
 		// Extreme-G.
-		type = kBlendModeAlphaTrans;
+		type = BlendType::AlphaTrans;
 		break;
 	case 0x0440: // In * AFog + Mem * 1-A
 		// Bomberman64. alpha_cvg_sel: 1 cvg_x_alpha: 1
-		type = kBlendModeAlphaTrans;
+		type = BlendType::AlphaTrans;
 		break;
 	case 0x04d0: // In * AFog + Fog * 1-A | In * AIn + Mem * 1-A
 		// Conker.
-		type = kBlendModeAlphaTrans;
+		type = BlendType::AlphaTrans;
 		break;
 	case 0x0150: // In * AIn + Mem * 1-A | In * AFog + Mem * 1-A
 		// Spiderman.
-		type = kBlendModeAlphaTrans;
+		type = BlendType::AlphaTrans;
 		break;
 	case 0x0c08: // In * 0 + In * 1
 		// MarioKart (spinning logo)
 		// This blend mode doesn't use the alpha value
-		type = kBlendModeOpaque;
+		type = BlendType::Opaque;
 		break;
 	case 0x0c18: // In * 0 + In * 1 | In * AIn + Mem * 1-A
 		// StarFox main menu.
-		type = kBlendModeAlphaTrans;
+		type = BlendType::AlphaTrans;
 		break;
 	case 0x0c40: // In * 0 + Mem * 1-A
 		// Extreme-G.
-		type = kBlendModeFade;
+		type = BlendType::BlendType::Fade;
 		break;
 	case 0x0c48: // In * 0 + Mem * 1
 		// SOTE text and hud
-		type = kBlendModeFade;
+		type = BlendType::BlendType::Fade;
 		break;
 	case 0x0f0a: // In * 0 + In * 1 | In * 0 + In * 1
 		// Zelda OoT.
-		type = kBlendModeOpaque;
+		type = BlendType::Opaque;
 		break;
 	case 0x4c40: // Mem * 0 + Mem * 1-A
 		//Waverace - alpha_cvg_sel: 0 cvg_x_alpha: 1
-		type = kBlendModeFade;
+		type = BlendType::BlendType::Fade;
 		break;
 	case 0x8410: // Bl * AFog + In * 1-A | In * AIn + Mem * 1-A
 		// Paper Mario.
-		type = kBlendModeAlphaTrans;
+		type = BlendType::AlphaTrans;
 		break;
 	case 0xc410: // Fog * AFog + In * 1-A | In * AIn + Mem * 1-A
 		// Donald Duck (Dust)
-		type = kBlendModeAlphaTrans;
+		type = BlendType::AlphaTrans;
 		break;
 	case 0xc440: // Fog * AFog + Mem * 1-A
 		// Banjo Kazooie
 		// Banjo Tooie sun glare
 		// FIXME: blends fog over existing?
-		type = kBlendModeAlphaTrans;
+		type = BlendType::AlphaTrans;
 		break;
 	case 0xc800: // Fog * AShade + In * 1-A
 		//Bomberman64. alpha_cvg_sel: 0 cvg_x_alpha: 1
-		type = kBlendModeOpaque;
+		type = BlendType::Opaque;
 		break;
 	case 0xc810: // Fog * AShade + In * 1-A | In * AIn + Mem * 1-A
 		// AeroGauge (ingame)
-		type = kBlendModeAlphaTrans;
+		type = BlendType::AlphaTrans;
 		break;
 	// case 0x0321: // In * 0 + Bl * AMem
 	// 	// Hmm - not sure about what this is doing. Zelda OoT pause screen.
-	// 	type = kBlendModeAlphaTrans;
+	// 	type = BlendType::AlphaTrans;
 	// 	break;
 
 	default:
@@ -849,21 +849,21 @@ static void InitBlenderMode()
 	// NB: we only have alpha in the blender is alpha_cvg_sel is 0 or cvg_x_alpha is 1.
 	bool have_alpha = !alpha_cvg_sel || cvg_x_alpha;
 
-	if (type == kBlendModeAlphaTrans && !have_alpha)
-		type = kBlendModeOpaque;
+	if (type == BlendType::AlphaTrans && !have_alpha)
+		type = BlendType::Opaque;
 
 	switch (type)
 	{
-	case kBlendModeOpaque:
+	case BlendType::Opaque:
 		glDisable(GL_BLEND);
 		break;
-	case kBlendModeAlphaTrans:
+	case BlendType::AlphaTrans:
 		glBlendColor(0.f, 0.f, 0.f, 0.f);
 		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		break;
-	case kBlendModeFade:
+	case BlendType::BlendType::Fade:
 		glBlendColor(0.f, 0.f, 0.f, 0.f);
 		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);

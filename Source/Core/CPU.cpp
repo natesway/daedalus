@@ -578,7 +578,7 @@ void CPU_AddBreakPoint( u32 address )
 		bpt.mTemporaryDisable = false;
 		g_BreakPoints.push_back(bpt);
 
-		pdwOp->op       = OP_DBG_BKPT;
+		pdwOp->op       = OpCodeValue::DBG_BKPT;
 		pdwOp->bp_index = (g_BreakPoints.size() - 1);
 	}
 }
@@ -600,7 +600,7 @@ void CPU_EnableBreakPoint( u32 address, bool enable )
 	{
 		OpCode op_code = *pdwOp;
 
-		if (op_code.op != OP_DBG_BKPT)
+		if (op_code.op != OpCodeValue::DBG_BKPT)
 		{
 			DBGConsole_Msg(0, "[YNo breakpoint is set at 0x%08x]", address);
 			return;

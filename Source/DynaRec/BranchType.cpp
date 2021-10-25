@@ -58,18 +58,18 @@ OpCode	GetInverseBranch( OpCode op_code )
 {
 	switch( op_code.op )
 	{
-	case OP_J:				break;
-	case OP_JAL:			break;
-	case OP_BEQ:			op_code.op = OP_BNE;	break;
-	case OP_BNE:			op_code.op = OP_BEQ;	break;
-	case OP_BLEZ:			op_code.op = OP_BGTZ;	break;
-	case OP_BGTZ:			op_code.op = OP_BLEZ;	break;
-	case OP_BEQL:			op_code.op = OP_BNEL;	break;
-	case OP_BNEL:			op_code.op = OP_BEQL;	break;
-	case OP_BLEZL:			op_code.op = OP_BGTZL;	break;
-	case OP_BGTZL:			op_code.op = OP_BLEZL;	break;
+	case OpCodeValue::J:				break;
+	case OpCodeValue::JAL:			break;
+	case OpCodeValue::BEQ:			op_code.op = OpCodeValue::BNE;	break;
+	case OpCodeValue::BNE:			op_code.op = OpCodeValue::BEQ;	break;
+	case OpCodeValue::BLEZ:			op_code.op = OpCodeValue::BGTZ;	break;
+	case OpCodeValue::BGTZ:			op_code.op = OpCodeValue::BLEZ;	break;
+	case OpCodeValue::BEQL:			op_code.op = OpCodeValue::BNEL;	break;
+	case OpCodeValue::BNEL:			op_code.op = OpCodeValue::BEQL;	break;
+	case OpCodeValue::BLEZL:			op_code.op = OpCodeValue::BGTZL;	break;
+	case OpCodeValue::BGTZL:			op_code.op = OpCodeValue::BLEZL;	break;
 
-	case OP_REGIMM:
+	case OpCodeValue::REGIMM:
 		switch( op_code.regimm_op )
 		{
 		case RegImmOp_BLTZ:		op_code.regimm_op = RegImmOp_BGEZ;	break;
@@ -86,7 +86,7 @@ OpCode	GetInverseBranch( OpCode op_code )
 		}
 		break;
 
-	case OP_SPECOP:
+	case OpCodeValue::SPECOP:
 		switch( op_code.spec_op )
 		{
 		case SpecOp_JR:			break;
@@ -96,7 +96,7 @@ OpCode	GetInverseBranch( OpCode op_code )
 		}
 		break;
 
-	case OP_COPRO0:
+	case OpCodeValue::COPRO0:
 		if( op_code.cop0_op == Cop0Op_TLB )
 		{
 			switch( op_code.cop0tlb_funct )
@@ -105,7 +105,7 @@ OpCode	GetInverseBranch( OpCode op_code )
 			}
 		}
 		break;
-	case OP_COPRO1:
+	case OpCodeValue::COPRO1:
 		if( op_code.cop1_op == Cop1Op_BCInstr )
 		{
 			switch( op_code.cop1_bc )
@@ -155,22 +155,22 @@ OpCode	UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address )
 {
 	switch( op_code.op )
 	{
-	case OP_J:
-	case OP_JAL:
+	case OpCodeValue::J:
+	case OpCodeValue::JAL:
 		op_code = UpdateJumpTarget( op_code, op_address, target_address );
 		break;
-	case OP_BEQ:
-	case OP_BNE:
-	case OP_BLEZ:
-	case OP_BGTZ:
-	case OP_BEQL:
-	case OP_BNEL:
-	case OP_BLEZL:
-	case OP_BGTZL:
+	case OpCodeValue::BEQ:
+	case OpCodeValue::BNE:
+	case OpCodeValue::BLEZ:
+	case OpCodeValue::BGTZ:
+	case OpCodeValue::BEQL:
+	case OpCodeValue::BNEL:
+	case OpCodeValue::BLEZL:
+	case OpCodeValue::BGTZL:
 		op_code = UpdateBranchOffset( op_code, op_address, target_address );
 		break;
 
-	case OP_REGIMM:
+	case OpCodeValue::REGIMM:
 		switch( op_code.regimm_op )
 		{
 		case RegImmOp_BLTZ:
@@ -189,7 +189,7 @@ OpCode	UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address )
 		}
 		break;
 
-	case OP_SPECOP:
+	case OpCodeValue::SPECOP:
 		switch( op_code.spec_op )
 		{
 		case SpecOp_JR:
@@ -201,7 +201,7 @@ OpCode	UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address )
 		}
 		break;
 
-	case OP_COPRO0:
+	case OpCodeValue::COPRO0:
 		if( op_code.cop0_op == Cop0Op_TLB )
 		{
 			switch( op_code.cop0tlb_funct )
@@ -212,7 +212,7 @@ OpCode	UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address )
 			}
 		}
 		break;
-	case OP_COPRO1:
+	case OpCodeValue::COPRO1:
 		if( op_code.cop1_op == Cop1Op_BCInstr )
 		{
 			switch( op_code.cop1_bc )

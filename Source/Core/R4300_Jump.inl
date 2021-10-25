@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 001 | ADDI  | ADDIU | SLTI  | SLTIU | ANDI  | ORI   | XORI  | LUI   |
 010 | *3    | *4    |  ---  |  ---  | BEQL  | BNEL  | BLEZL | BGTZL |
 011 | DADDI |DADDIU | LDL   | LDR   | Patch |SRHackU|SRHackO|SRHackN|
-100 | LB    | LH    | LWL   | LW    | LBU   | LHU   | LWR   | LWU   |
+100 | LB    | LH    | LWL   | LW    | LBU   | LHU   | OpCodeValue::LWR   | OpCodeValue::LWU   |
 101 | SB    | SH    | SWL   | SW    | SDL   | SDR   | SWR   | CACHE |
 110 | LL    | LWC1  |  ---  |  ---  | LLD   | LDC1  | LDC2  | LD    |
 111 | SC    | SWC1  | DBkpt |  ---  | SCD   | SDC1  | SDC2  | SD    |

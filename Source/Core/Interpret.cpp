@@ -57,7 +57,7 @@ template< bool TranslateOp > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 	if ( TranslateOp )
 	{
 		// Handle breakpoints correctly
-		if (op_code.op == OP_DBG_BKPT)
+		if (op_code.op == OpCodeValue::DBG_BKPT)
 		{
 			// Turn temporary disable on to allow instr to be processed
 			// Entry is in lower 26 bits...

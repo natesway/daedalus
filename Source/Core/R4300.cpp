@@ -437,31 +437,31 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 {
 	switch( op_code.op )
 	{
-	// FIXME: These can potentially trow if memory is accessed through a function call?! //Salvy
-	case OP_LWL:
-	case OP_SWL:
-	case OP_LWR:
-	case OP_SWR:
-	case OP_LDL:
-	case OP_LDR:
-	case OP_SDC1:
-	case OP_LDC1:
+	// FIXME: These can potentially throw if memory is accessed through a function call?! //Salvy
+	case static_cast<u32>(OpCodeValue::LWL):
+	case static_cast<u32>(OpCodeValue::SWL):
+	case static_cast<u32>(OpCodeValue::LWR):
+	case static_cast<u32>(OpCodeValue::SWR):
+	case static_cast<u32>(OpCodeValue::LDL):
+	case static_cast<u32>(OpCodeValue::LDR):
+	case static_cast<u32>(OpCodeValue::SDC1):
+	case static_cast<u32>(OpCodeValue::LDC1):
 		return false;
 
-	case OP_ADDI:
-	case OP_ADDIU:
-	case OP_SLTI:
-	case OP_SLTIU:
-	case OP_ANDI:
-	case OP_ORI:
-	case OP_XORI:
-	case OP_LUI:
-	case OP_DADDI:
-	case OP_DADDIU:
-	case OP_CACHE:
+	case static_cast<u32>(OpCodeValue::ADDI):
+	case static_cast<u32>(OpCodeValue::ADDIU):
+	case static_cast<u32>(OpCodeValue::SLTI):
+	case static_cast<u32>(OpCodeValue::SLTIU):
+	case static_cast<u32>(OpCodeValue::ANDI):
+	case static_cast<u32>(OpCodeValue::ORI):
+	case static_cast<u32>(OpCodeValue::XORI):
+	case static_cast<u32>(OpCodeValue::LUI):
+	case static_cast<u32>(OpCodeValue::DADDI):
+	case static_cast<u32>(OpCodeValue::DADDIU):
+	case static_cast<u32>(OpCodeValue::CACHE):
 		return false;
 
-	case OP_SPECOP:
+	case static_cast<u32>(OpCodeValue::SPECOP):
 		//return R4300SpecialInstruction[ op_code.funct ];
 
 		switch( op_code.spec_op )
@@ -513,15 +513,15 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 		}
 		return true;
 
-	case OP_REGIMM:
+	case static_cast<u32>(OpCodeValue::REGIMM):
 		// These are all traps or branches
 		return true;
 
-	case OP_COPRO0:
+	case static_cast<u32>(OpCodeValue::COPRO0):
 		// Only ERET needs PC
 		return op_code.cop0tlb_funct == OP_ERET;
 
-	case OP_COPRO1:
+	case static_cast<u32>(OpCodeValue::COPRO1):
 		// Potentially these can all throw, if cop1 is disabled
 		// We explicitly handle this in the dynarec (we check the usuable flag once
 		// per fragment). Care needs to be take if this is used elsewhere.
@@ -550,19 +550,19 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 	// CHECK COP1 UNUSUABLE
 	if( (gCPUState.CPUControl[C0_SR]._u32 & SR_CU1) == 0 )
 	{
-		R4300Instruction[OP_COPRO1] = R4300_CoPro1_Disabled;
-		R4300Instruction[OP_LWC1] = R4300_CoPro1_Disabled;
-		R4300Instruction[OP_LDC1] = R4300_CoPro1_Disabled;
-		R4300Instruction[OP_SWC1] = R4300_CoPro1_Disabled;
-		R4300Instruction[OP_SDC1] = R4300_CoPro1_Disabled;
+		R4300Instruction[static_cast<u32>(OpCodeValue::COPRO1)] = R4300_CoPro1_Disabled;
+		R4300Instruction[static_cast<u32>(OpCodeValue::LWC1)] = R4300_CoPro1_Disabled;
+		R4300Instruction[static_cast<u32>(OpCodeValue::LDC1)] = R4300_CoPro1_Disabled;
+		R4300Instruction[static_cast<u32>(OpCodeValue::SWC1)] = R4300_CoPro1_Disabled;
+		R4300Instruction[static_cast<u32>(OpCodeValue::SDC1)] = R4300_CoPro1_Disabled;
 	}
 	else
 	{
-		R4300Instruction[OP_COPRO1] = R4300_CoPro1;
-		R4300Instruction[OP_LWC1] = R4300_LWC1;
-		R4300Instruction[OP_LDC1] = R4300_LDC1;
-		R4300Instruction[OP_SWC1] = R4300_SWC1;
-		R4300Instruction[OP_SDC1] = R4300_SDC1;
+		R4300Instruction[static_cast<u32>(OpCodeValue::COPRO1)] = R4300_CoPro1;
+		R4300Instruction[static_cast<u32>(OpCodeValue::LWC1)] = R4300_LWC1;
+		R4300Instruction[static_cast<u32>(OpCodeValue::LDC1)] = R4300_LDC1;
+		R4300Instruction[static_cast<u32>(OpCodeValue::SWC1)] = R4300_SWC1;
+		R4300Instruction[static_cast<u32>(OpCodeValue::SDC1)] = R4300_SDC1;
 	}
 
 	// Serve any pending interrupts
@@ -3261,13 +3261,13 @@ CPU_Instruction	R4300_GetInstructionHandler( OpCode op_code )
 {
 	switch( op_code.op )
 	{
-	case OP_SPECOP:
+	case static_cast<u32>(OpCodeValue::SPECOP):
 		return R4300SpecialInstruction[ op_code.spec_op ];
 
-	case OP_REGIMM:
+	case static_cast<u32>(OpCodeValue::REGIMM):
 		return R4300RegImmInstruction[ op_code.regimm_op ];
 
-	case OP_COPRO0:
+	case static_cast<u32>(OpCodeValue::COPRO0):
 		switch( op_code.cop0_op )
 		{
 		case Cop0Op_TLB:
@@ -3276,7 +3276,7 @@ CPU_Instruction	R4300_GetInstructionHandler( OpCode op_code )
 			return R4300Cop0Instruction[ op_code.cop0_op ];
 		}
 
-	case OP_COPRO1:
+	case static_cast<u32>(OpCodeValue::COPRO1):
 		// It is the responsibility of the caller to check whether the
 		// copprocessor is enabled, and throw and exception accordingly.
 		switch( op_code.cop1_op )

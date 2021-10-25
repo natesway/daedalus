@@ -77,15 +77,15 @@ static const CBlendConstantExpression * BuildConstantExpression( const CCombiner
 
 		switch( input->GetInput() )
 		{
-		case CI_PRIMITIVE:			return new CBlendConstantExpressionValue( BC_PRIMITIVE );
-		case CI_ENV:				return new CBlendConstantExpressionValue( BC_ENVIRONMENT );
-		case CI_PRIMITIVE_ALPHA:	return new CBlendConstantExpressionValue( BC_PRIMITIVE_ALPHA );
-		case CI_ENV_ALPHA:			return new CBlendConstantExpressionValue( BC_ENVIRONMENT_ALPHA );
-		case CI_1:					return new CBlendConstantExpressionValue( BC_1 );
-		case CI_0:					return new CBlendConstantExpressionValue( BC_0 );
+		case CI_PRIMITIVE:			return new CBlendConstantExpressionValue( EBlendConstant::BC_PRIMITIVE );
+		case CI_ENV:				return new CBlendConstantExpressionValue( EBlendConstant::BC_ENVIRONMENT );
+		case CI_PRIMITIVE_ALPHA:	return new CBlendConstantExpressionValue( EBlendConstant::BC_PRIMITIVE_ALPHA );
+		case CI_ENV_ALPHA:			return new CBlendConstantExpressionValue( EBlendConstant::BC_ENVIRONMENT_ALPHA );
+		case CI_1:					return new CBlendConstantExpressionValue( EBlendConstant::BC_1 );
+		case CI_0:					return new CBlendConstantExpressionValue( EBlendConstant::BC_0 );
 		case CI_SHADE:
 			if( options == BCE_ALLOW_SHADE )
-				return new CBlendConstantExpressionValue( BC_SHADE );
+				return new CBlendConstantExpressionValue( EBlendConstant::BC_SHADE );
 			else
 				return NULL;
 		default:
@@ -114,7 +114,7 @@ static const CBlendConstantExpression * BuildConstantExpression( const CCombiner
 			{
 				if( lhs == NULL )
 				{
-					lhs = new CBlendConstantExpressionValue( BC_0 );
+					lhs = new CBlendConstantExpressionValue( EBlendConstant::BC_0 );
 				}
 
 				sum_expr = new CBlendConstantExpressionSub( lhs, rhs );
@@ -306,25 +306,25 @@ void	ApplyAlphaModulateTerm( CAlphaRenderSettings * settings, const CCombinerOpe
 			settings->AddTermTexel1();
 			break;
 		case CI_SHADE:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_SHADE ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_SHADE ) );
 			break;
 		case CI_PRIMITIVE:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_PRIMITIVE ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_PRIMITIVE ) );
 			break;
 		case CI_ENV:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_ENVIRONMENT ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_ENVIRONMENT ) );
 			break;
 		case CI_PRIMITIVE_ALPHA:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_PRIMITIVE_ALPHA ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_PRIMITIVE_ALPHA ) );
 			break;
 		case CI_ENV_ALPHA:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_ENVIRONMENT_ALPHA ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_ENVIRONMENT_ALPHA ) );
 			break;
 		case CI_0:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_0 ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_0 ) );
 			break;
 		case CI_1:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_1 ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_1 ) );
 			break;
 
 		default:
@@ -410,25 +410,25 @@ void	ApplyModulateTerm( CRenderSettingsModulate * settings, const CCombinerOpera
 			settings->AddTermTexel1();
 			break;
 		case CI_SHADE:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_SHADE ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_SHADE ) );
 			break;
 		case CI_PRIMITIVE:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_PRIMITIVE ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_PRIMITIVE ) );
 			break;
 		case CI_ENV:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_ENVIRONMENT ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_ENVIRONMENT ) );
 			break;
 		case CI_PRIMITIVE_ALPHA:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_PRIMITIVE_ALPHA ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_PRIMITIVE_ALPHA ) );
 			break;
 		case CI_ENV_ALPHA:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_ENVIRONMENT_ALPHA ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_ENVIRONMENT_ALPHA ) );
 			break;
 		case CI_0:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_0 ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_0 ) );
 			break;
 		case CI_1:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_1 ) );
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_1 ) );
 			break;
 
 		default:
