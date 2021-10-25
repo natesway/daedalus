@@ -181,19 +181,19 @@ enum ERegImmOp
 	RegImmOp_BGEZALL		= 19
 };
 
-enum ECop0Op
+enum class ECop0Op
 {
-	Cop0Op_MFC0		= 0,
-	Cop0Op_MTC0		= 4,
-	Cop0Op_TLB		= 16
+	MFC0		= 0,
+	MTC0		= 4,
+	TLB		= 16
 };
 
-enum TLBOpCodeValue {
-	OP_TLBR = 1,
-	OP_TLBWI = 2,
-	OP_TLBWR = 6,
-	OP_TLBBP = 8,
-	OP_ERET = 24
+enum class TLBOpCodeValue {
+	TLBR = 1, 
+	TLBWI = 2,
+	TLBWR = 6,
+	TLBBP = 8,
+	ERET = 24
 };
 
 enum ECop1Op
@@ -257,12 +257,12 @@ enum ECop1OpFunction
 	Cop1OpFunc_CMP_NGT = 63,
 };
 
-enum ECop1BCOp
+enum class ECop1BCOp
 {
-	Cop1BCOp_BC1F = 0,
-	Cop1BCOp_BC1T = 1,
-	Cop1BCOp_BC1FL = 2,
-	Cop1BCOp_BC1TL = 3
+	BC1F = 0,
+	BC1T = 1,
+	BC1FL = 2,
+	BC1TL = 3
 };
 
 struct OpCode

@@ -519,7 +519,7 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 
 	case static_cast<u32>(OpCodeValue::COPRO0):
 		// Only ERET needs PC
-		return op_code.cop0tlb_funct == OP_ERET;
+		return op_code.cop0tlb_funct == static_cast<u32>(TLBOpCodeValue::ERET);
 
 	case static_cast<u32>(OpCodeValue::COPRO1):
 		// Potentially these can all throw, if cop1 is disabled
@@ -3270,7 +3270,7 @@ CPU_Instruction	R4300_GetInstructionHandler( OpCode op_code )
 	case static_cast<u32>(OpCodeValue::COPRO0):
 		switch( op_code.cop0_op )
 		{
-		case Cop0Op_TLB:
+		case static_cast<u32>(ECop0Op::TLB):
 			return R4300TLBInstruction[ op_code.cop0tlb_funct ];
 		default:
 			return R4300Cop0Instruction[ op_code.cop0_op ];

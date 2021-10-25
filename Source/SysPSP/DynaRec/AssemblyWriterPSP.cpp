@@ -972,7 +972,7 @@ CJumpLocation	CAssemblyWriterPSP::BranchCop1( ECop1BCOp bc_op, CCodeLabel target
 	op_code._u32 = 0;
 	op_code.op = static_cast<u32>(OpCodeValue::COPRO1);
 	op_code.cop1_op = Cop1Op_BCInstr;
-	op_code.cop1_bc = bc_op;
+	op_code.cop1_bc = static_cast<u32>(bc_op);
 	op_code.offset = s16((offset - 4) >> 2);	// Adjust for incremented PC and ignore lower bits
 	AppendOp( op_code );
 
@@ -991,7 +991,7 @@ CJumpLocation	CAssemblyWriterPSP::BranchCop1( ECop1BCOp bc_op, CCodeLabel target
 
 CJumpLocation	CAssemblyWriterPSP::BC1F( CCodeLabel target, bool insert_delay )
 {
-	return BranchCop1( Cop1BCOp_BC1F, target, insert_delay );
+	return BranchCop1( ECop1BCOp::BC1F, target, insert_delay );
 }
 
 
@@ -999,5 +999,5 @@ CJumpLocation	CAssemblyWriterPSP::BC1F( CCodeLabel target, bool insert_delay )
 
 CJumpLocation	CAssemblyWriterPSP::BC1T( CCodeLabel target, bool insert_delay )
 {
-	return BranchCop1( Cop1BCOp_BC1T, target, insert_delay );
+	return BranchCop1( ECop1BCOp::BC1T, target, insert_delay );
 }

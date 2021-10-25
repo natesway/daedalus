@@ -1562,8 +1562,8 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	case static_cast<u32>(OpCodeValue::COPRO0):
 		switch( op_code.cop0_op )
 		{
-		case Cop0Op_MFC0:	GenerateMFC0( rt, op_code.fs ); handled = true; break;
-		//case Cop0Op_MTC0:	GenerateMTC0( rt, op_code.fs ); handled = true; break;	//1080 deg has issues with this
+		case static_cast<u32>(ECop0Op::MFC0):	GenerateMFC0( rt, op_code.fs ); handled = true; break;
+		//case ECop0Op::MTC0:	GenerateMTC0( rt, op_code.fs ); handled = true; break;	//1080 deg has issues with this
 		default:
 			break;
 		}
@@ -1679,11 +1679,11 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			switch( op_code.cop1_bc )
 			{
 				// These can be handled by the same Generate function, as the 'likely' bit is handled elsewhere
-			case Cop1BCOp_BC1F:
-			case Cop1BCOp_BC1FL:
+			case static_cast<u32>(ECop1BCOp::BC1F):
+			case static_cast<u32>(ECop1BCOp::BC1FL):
 				GenerateBC1F( p_branch, p_branch_jump ); handled = true; break;
-			case Cop1BCOp_BC1T:
-			case Cop1BCOp_BC1TL:
+			case static_cast<u32>(ECop1BCOp::BC1T):
+			case static_cast<u32>(ECop1BCOp::BC1TL):
 				GenerateBC1T( p_branch, p_branch_jump ); handled = true; break;
 			}
 			break;

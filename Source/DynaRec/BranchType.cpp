@@ -97,11 +97,11 @@ OpCode	GetInverseBranch( OpCode op_code )
 		break;
 
 	case OpCodeValue::COPRO0:
-		if( op_code.cop0_op == Cop0Op_TLB )
+		if( op_code.cop0_op == ECop0Op::TLB )
 		{
 			switch( op_code.cop0tlb_funct )
 			{
-			case OP_ERET:	break;
+			case TLBOpCodeValue::ERET:	break;
 			}
 		}
 		break;
@@ -110,10 +110,10 @@ OpCode	GetInverseBranch( OpCode op_code )
 		{
 			switch( op_code.cop1_bc )
 			{
-			case Cop1BCOp_BC1F:		op_code.cop1_bc = Cop1BCOp_BC1T;	break;
-			case Cop1BCOp_BC1T:		op_code.cop1_bc = Cop1BCOp_BC1F;	break;
-			case Cop1BCOp_BC1FL:	op_code.cop1_bc = Cop1BCOp_BC1TL;	break;
-			case Cop1BCOp_BC1TL:	op_code.cop1_bc = Cop1BCOp_BC1FL;	break;
+			case ECop1BCOp::BC1F:		op_code.cop1_bc = ECop1BCOp::BC1T;	break;
+			case ECop1BCOp::BC1T:		op_code.cop1_bc = ECop1BCOp::BC1F;	break;
+			case ECop1BCOp::BC1FL:	op_code.cop1_bc = ECop1BCOp::BC1TL;	break;
+			case ECop1BCOp::BC1TL:	op_code.cop1_bc = ECop1BCOp::BC1FL;	break;
 			}
 		}
 		break;
@@ -202,12 +202,12 @@ OpCode	UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address )
 		break;
 
 	case OpCodeValue::COPRO0:
-		if( op_code.cop0_op == Cop0Op_TLB )
+		if( op_code.cop0_op == ECop0Op::TLB )
 		{
 			switch( op_code.cop0tlb_funct )
 			{
 			// No jump target - it's indirect
-			case OP_ERET:
+			case TLBOpCodeValue::ERET:
 				break;
 			}
 		}
@@ -217,10 +217,10 @@ OpCode	UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address )
 		{
 			switch( op_code.cop1_bc )
 			{
-			case Cop1BCOp_BC1F:
-			case Cop1BCOp_BC1T:
-			case Cop1BCOp_BC1FL:
-			case Cop1BCOp_BC1TL:
+			case ECop1BCOp::BC1F:
+			case ECop1BCOp::BC1T:
+			case ECop1BCOp::BC1FL:
+			case ECop1BCOp::BC1TL:
 				op_code = UpdateBranchOffset( op_code, op_address, target_address );
 				break;
 			}
