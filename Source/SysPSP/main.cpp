@@ -87,7 +87,7 @@ extern "C"
 /* Kernel Exception Handler functions */
 
 extern void VolatileMemInit();
-extern bool InitialiseJobManager();
+extern bool InitialiseMediaEngine();
 
 
 /* Video Manager functions */
@@ -111,7 +111,7 @@ static bool	Initialize()
 	scePowerSetClockFrequency(333, 333, 166);
 	InitHomeButton();
 
-	bool bMeStarted = InitialiseJobManager();
+	bool bMeStarted = InitialiseMediaEngine();
 
 
 // This Breaks gdb, better disable it in debug build

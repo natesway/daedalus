@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "HLEAudio/AudioBuffer.h"
 #include "SysPSP/Utility/CacheUtil.h"
-#include "SysPSP/Utility/JobManager.h"
+
 #include "Core/FramerateLimiter.h"
 #include "System/Thread.h"
 
@@ -67,6 +67,10 @@ static s16 __attribute__((aligned(16))) pcmout2[PSP_NUM_AUDIO_SAMPLES];
 static bool audio_open {false};
 
 static AudioOutput * ac;
+
+static const u32	kOutputFrequency = 44100;
+
+
 
 static int fillBuffer(SceSize args, void *argp)
 {
@@ -162,6 +166,7 @@ AudioOutput::AudioOutput()
 	mAudioBufferUncached = (CAudioBuffer*)MAKE_UNCACHED_PTR(mem);
 	// Ideally we could just invalidate this range?
 	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
+	
 }
 
 AudioOutput::~AudioOutput( )
@@ -178,50 +183,6 @@ void AudioOutput::SetFrequency( u32 frequency )
 	mFrequency = frequency;
 }
 
-struct SAddSamplesJob : public SJob
-{
-	CAudioBuffer *		mBuffer;
-	const Sample *		mSamples;
-	u32					mNumSamples;
-	u32					mFrequency;
-	u32					mOutputFreq;
-
-	SAddSamplesJob( CAudioBuffer * buffer, const Sample * samples, u32 num_samples, u32 frequency, u32 output_freq )
-		:	mBuffer( buffer )
-		,	mSamples( samples )
-		,	mNumSamples( num_samples )
-		,	mFrequency( frequency )
-		,	mOutputFreq( output_freq )
-	{
-		InitJob = NULL;
-		DoJob = &DoAddSamplesStatic;
-		FiniJob = &DoJobComplete;
-	}
-
-	static int DoAddSamplesStatic( SJob * arg )
-	{
-		SAddSamplesJob *	job( static_cast< SAddSamplesJob * >( arg ) );
-		return job->DoAddSamples();
-	}
-
-	static int DoJobComplete( SJob * arg )
-	{
-		SAddSamplesJob *	job( static_cast< SAddSamplesJob * >( arg ) );
-		return job->DoJobComplete();
-	}
-
-	int DoAddSamples()
-	{
-		mBuffer->AddSamples( mSamples, mNumSamples, mFrequency, mOutputFreq );
-		return 0;
-	}
-
-	int DoJobComplete()
-	{
-		return 0;
-	}
-
-};
 
 void AudioOutput::AddBuffer( u8 *start, u32 length )
 {
@@ -255,9 +216,7 @@ void AudioOutput::AddBuffer( u8 *start, u32 length )
 
 	case APM_ENABLED_ASYNC:
 		{
-			SAddSamplesJob	job( mAudioBufferUncached, reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, 44100 );
-
-			gJobManager.AddJob( &job, sizeof( job ) );
+				mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
 		}
 		break;
 

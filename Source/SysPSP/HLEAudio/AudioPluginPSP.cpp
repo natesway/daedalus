@@ -39,7 +39,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/Memory.h"
 #include "Core/ROM.h"
 #include "Core/RSP_HLE.h"
-#include "SysPSP/Utility/JobManager.h"
+#include "SysPSP/Utility/CacheUtil.h"
+
 
 
 #define RSP_AUDIO_INTR_CYCLES     1
@@ -51,6 +52,40 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define DEFAULT_FREQUENCY 44100	// Taken from Mupen64 : )
 
+#ifdef DAEDALUS_PSP_USE_ME
+
+#include "SysPSP/PRX/MediaEngine/me.h"
+#include "SysPSP/Utility/ModulePSP.h"
+
+bool gLoadedMediaEnginePRX {false};
+
+volatile me_struct *mei;
+
+bool InitialiseMediaEngine()
+{
+
+	if( CModule::Load("mediaengine.prx") < 0 )	return false;
+
+	mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
+	mei = (volatile struct me_struct *)(MAKE_UNCACHED_PTR(mei));
+	sceKernelDcacheWritebackInvalidateAll();
+
+	if (InitME(mei) == 0)
+	{
+		gLoadedMediaEnginePRX = true;
+		return true;
+	}
+	else
+	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
+		printf(" Couldn't initialize MediaEngine Instance\n");
+		#endif
+		return false;
+	}
+
+}
+
+#endif
 
 EAudioPluginMode gAudioPluginEnabled( APM_DISABLED );
 //bool gAdaptFrequency( false );
@@ -122,39 +157,6 @@ u32		CAudioPluginPsp::AiReadLength()
 	return 0;
 }
 
-struct SHLEStartJob : public SJob
-{
-	SHLEStartJob()
-	{
-		 InitJob = NULL;
-		 DoJob = &DoHLEStartStatic;
-		 FiniJob = &DoHLEFinishedStatic;
-	}
-
-	static int DoHLEStartStatic( SJob * arg )
-	{
-		 SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
-		 return job->DoHLEStart();
-	}
-
-	static int DoHLEFinishedStatic( SJob * arg )
-	{
-		 SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
-		 return job->DoHLEFinish();
-	}
-
-	int DoHLEStart()
-	{
-		 HLEStart();
-		 return 0;
-	}
-
-	int DoHLEFinish()
-	{
-		 CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
-		 return 0;
-	}
-};
 
 
 EProcessResult	CAudioPluginPsp::ProcessAList()
@@ -170,10 +172,14 @@ EProcessResult	CAudioPluginPsp::ProcessAList()
 			break;
 		case APM_ENABLED_ASYNC:
 			{
-				SHLEStartJob	job;
-				gJobManager.AddJob( &job, sizeof( job ) );
+			sceKernelDcacheWritebackInvalidateAll();
+				if(BeginME( mei, (int)&HLEStart, (int)NULL, -1, NULL, -1, NULL) < 0){
+						HLEStart();
+						result = PR_COMPLETED;
+						break;
+				}
 			}
-			result = PR_STARTED;
+			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_SYNC:
 			HLEStart();
