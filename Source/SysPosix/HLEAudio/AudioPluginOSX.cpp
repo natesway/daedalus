@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <AudioToolbox/AudioQueue.h>
 #include <CoreAudio/CoreAudioTypes.h>
 #include <CoreFoundation/CFRunLoop.h>
-
+#include "HLEAudio/audiohle.h"
 #include "Config/ConfigOptions.h"
 #include "Core/Memory.h"
 #include "Debug/DBGConsole.h"
@@ -76,9 +76,9 @@ public:
 	virtual bool			StartEmulation();
 	virtual void			StopEmulation();
 
-	virtual void			DacrateChanged(int system_type);
-	virtual void			LenChanged();
-	virtual u32				ReadLength()			{ return 0; }
+	virtual void			AiDacrateChanged(int system_type);
+	virtual void			AiLenChanged();
+	virtual u32				AiReadLength()			{ return 0; }
 	virtual EProcessResult	ProcessAList();
 
 	void					AddBuffer(void * ptr, u32 length);	// Uploads a new buffer and returns status
@@ -124,7 +124,7 @@ void AudioPluginOSX::StopEmulation()
 	StopAudio();
 }
 
-void AudioPluginOSX::DacrateChanged(int system_type)
+void AudioPluginOSX::AiDacrateChanged(int system_type)
 {
 	u32 clock      = (system_type == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK;
 	u32 dacrate   = Memory_AI_GetRegister(AI_DACRATE_REG);
@@ -134,7 +134,7 @@ void AudioPluginOSX::DacrateChanged(int system_type)
 	mFrequency = frequency;
 }
 
-void AudioPluginOSX::LenChanged()
+void AudioPluginOSX::AiLenChanged()
 {
 	if (gAudioPluginEnabled > APM_DISABLED)
 	{
@@ -162,11 +162,11 @@ EProcessResult AudioPluginOSX::ProcessAList()
 			break;
 		case APM_ENABLED_ASYNC:
 			DAEDALUS_ERROR("Async audio is unimplemented");
-			Audio_Ucode();
+			HLEStart();
 			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_SYNC:
-			Audio_Ucode();
+			HLEStart();
 			result = PR_COMPLETED;
 			break;
 	}

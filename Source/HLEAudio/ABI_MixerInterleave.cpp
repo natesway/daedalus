@@ -1,152 +1,205 @@
-#include "stdafx.h"
+/****************************************************************************
+*                                                                           *
+* Azimer's HLE Audio Plugin for Project64 Compatible N64 Emulators          *
+* http://www.apollo64.com/                                                  *
+* Copyright (C) 2000-2019 Azimer. All rights reserved.                      *
+*                                                                           *
+* License:                                                                  *
+* GNU/GPLv2 http://www.gnu.org/licenses/gpl-2.0.html                        *
+*                                                                           *
+****************************************************************************/
 
-#include <string.h>
-
-
-#include "Core/Memory.h"
-#include "Debug/DBGConsole.h"
-#include "HLEAudio/HLEAudioInternal.h"
+#include "audiohle.h"
 #include "HLEAudio/HLEAudioState.h"
-#include "Base/MathUtil.h"
 
-extern bool isMKABI;
-extern bool isZeldaABI;
+void ADDMIXER() {
+	s16 Count = (k0 >> 12) & 0x0FF0;
+	u16 InBuffer = (t9 >> 16);
+	u16 OutBuffer = t9 & 0xffff;
 
-void ADDMIXER( AudioHLECommand command)
-{
-	#ifdef DEBUG_AUDIO
-    DBGConsole_Msg(0, "ADDMIXER");
-    #endif
-//  DAEDALUS_ERROR( "ADDMIXER - broken?" );
-	u32 Count     = (command.cmd0 >> 12) & 0x00ff0;
-	u32 InBuffer  = (command.cmd1 >> 16);
-	u32 OutBuffer = command.cmd1 & 0xffff;
-
-	s16 *inp  = (s16 *)(gAudioHLEState.Buffer + InBuffer);
-	s16 *outp = (s16 *)(gAudioHLEState.Buffer + OutBuffer);
-	for (u32 cntr = 0; cntr < Count; cntr+=2)
-	{
-		//s32 temp = Saturate<s16>( *outp + *inp );
-		// *outp = temp;		// Added this - correct??
+	s16 *inp, *outp;
+	s32 temp;
+	inp = (s16 *)(BufferSpace + InBuffer);
+	outp = (s16 *)(BufferSpace + OutBuffer);
+	for (s16 cntr = 0; cntr < Count; cntr += 2) {
+		temp = *outp + *inp;
+		*outp = pack_signed(temp);
 		outp++;	inp++;
 	}
 }
 
-void HILOGAIN( AudioHLECommand command)
-{
-	#ifdef DEBUG_AUDIO
-		DBGConsole_Msg(0, "HILOAGAIN");
-		#endif
-  u32 count = command.cmd0 & 0xffff;
-	s32 hi  = (s16)((command.cmd0 >> 4) & 0xf000);
-	u32 lo  = (command.cmd0 >> 20) & 0xf;
+void HILOGAIN() {
+	u16 cnt = k0 & 0xffff;
+	u16 out = (t9 >> 16) & 0xffff;
+	s16 hi = (s16)((k0 >> 4) & 0xf000);
+	u16 lo = (k0 >> 20) & 0xf;
+	s16 *src;
 
-	u32 out = (command.cmd1 >> 16) & 0xffff;
-	s16 *src = (s16 *)(gAudioHLEState.Buffer+out);
+	src = (s16 *)(BufferSpace + out);
+	s32 tmp, val;
 
-	while( count )
-	{
-		s32 val = *src;
-		s32 tmp = ((val * hi) >> 16) + (u32)(val * lo);
-		*src++ = Saturate<s16>( tmp );
-		count -= 2;
+	while (cnt) {
+		val = (s32)*src;
+		//tmp = ((val * (s32)hi) + ((u64)(val * lo) << 16) >> 16);
+		tmp = ((val * (s32)hi) >> 16) + (u32)(val * lo);
+		*src = pack_signed(tmp);
+		src++;
+		cnt -= 2;
 	}
 }
 
-void INTERLEAVE( AudioHLECommand command)
-{
-	#ifdef DEBUG_AUDIO
-		DBGConsole_Msg(0, "INTERLEAVE");
-		#endif
-  u16 inL( command.Abi1Interleave.LAddr );
-  	u16 inR( command.Abi1Interleave.RAddr );
+void INTERLEAVE() {
+	u32 inL, inR;
+	u16 *outbuff = (u16 *)(AudioOutBuffer + BufferSpace);
+	u16 *inSrcR;
+	u16 *inSrcL;
+	u16 Left, Right;
 
-  	gAudioHLEState.Interleave( inL, inR );
-}
+	inL = t9 & 0xFFFF;
+	inR = (t9 >> 16) & 0xFFFF;
 
-void DEINTERLEAVE2( AudioHLECommand command)
-{
-	#ifdef DEBUG_AUDIO
-		DBGConsole_Msg(0, "DEINTERLEAVE2");
-		#endif
-  u16 count( command.Abi2Deinterleave.Count );
-	u16 out( command.Abi2Deinterleave.Out );
-	u16 in( command.Abi2Deinterleave.In );
+	inSrcR = (u16 *)(BufferSpace + inR);
+	inSrcL = (u16 *)(BufferSpace + inL);
 
-	gAudioHLEState.Deinterleave( out, in, count );
-}
+	for (int x = 0; x < (AudioCount / 4); x++) {
+		Left = *(inSrcL++);
+		Right = *(inSrcR++);
 
-void INTERLEAVE2( AudioHLECommand command)
-{
-
-	#ifdef DEBUG_AUDIO
-		DBGConsole_Msg(0, "INTERLEAVE2");
-		#endif
-  u16	inR( command.Abi2Interleave.RAddr );
-	u16	inL( command.Abi2Interleave.LAddr);
-	u16 out( command.Abi2Interleave.OutAddr );
-	u16 count( command.Abi2Interleave.Count );
-
-	if (count != 0)
-	{
-		gAudioHLEState.Interleave( out, inL, inR, count );
-	}
-	else
-	{
-		gAudioHLEState.Interleave( inL, inR );
+		*(outbuff++) = *(inSrcR++);
+		*(outbuff++) = *(inSrcL++);
+		*(outbuff++) = (u16)Right;
+		*(outbuff++) = (u16)Left;
 	}
 }
 
-void INTERLEAVE3( AudioHLECommand command)
-{
-	#ifdef DEBUG_AUDIO
-		DBGConsole_Msg(0, "INTERLEAVE3");
-		#endif
-  // Needs accuracy verification...
-	//inR = command.cmd1 & 0xFFFF;
-	//inL = (command.cmd1 >> 16) & 0xFFFF;
-
-	gAudioHLEState.Interleave( 0x4f0, 0x9d0, 0xb40, 0x170 );
+void INTERL2() {
+	s16 Count = k0 & 0xFFFF;
+	u16 Out = t9 & 0xffff;
+	u16 In  = (t9 >> 16);
+	s16* src;
+	s16* dst;
+	src = (s16 *)(gAudioHLEState.Buffer + In);
+	dst = (s16 *)(gAudioHLEState.Buffer + Out);
+	while (Count != 0) {
+		*(s16 *)(dst + BES(Out)) = *(s16 *)(src + BES(In));
+		Out += 2;
+		In += 4;
+		Count--;
+	}
+	
 }
 
-void MIXER( AudioHLECommand command)
-{
-	#ifdef DEBUG_AUDIO
-		DBGConsole_Msg(0, "MIXER");
-		#endif
-  u16 dmemin( command.Abi1Mixer.DmemIn );
-  	u16 dmemout( command.Abi1Mixer.DmemOut );
-  	s32 gain( command.Abi1Mixer.Gain );
+void INTERLEAVE2() { // Needs accuracy verification...
+	u32 inL, inR;
+	u16 *outbuff;
+	u16 *inSrcR;
+	u16 *inSrcL;
+	u16 Left, Right;
+	u32 count;
+	count = ((k0 >> 12) & 0xFF0);
+	if (count == 0) {
+		outbuff = (u16 *)(AudioOutBuffer + BufferSpace);
+		count = AudioCount;
+	}
+	else {
+		outbuff = (u16 *)((k0 & 0xFFFF) + BufferSpace);
+	}
 
-  	gAudioHLEState.Mixer( dmemout, dmemin, gain );
+	inR = t9 & 0xFFFF;
+	inL = (t9 >> 16) & 0xFFFF;
+
+	inSrcR = (u16 *)(BufferSpace + inR);
+	inSrcL = (u16 *)(BufferSpace + inL);
+
+	for (u32 x = 0; x < (count / 4); x++) {
+		Left = *(inSrcL++);
+		Right = *(inSrcR++);
+
+		*(outbuff++) = *(inSrcR++);
+		*(outbuff++) = *(inSrcL++);
+		*(outbuff++) = (u16)Right;
+		*(outbuff++) = (u16)Left;
+	}
 }
 
-void MIXER2( AudioHLECommand command)
-{
-	#ifdef DEBUG_AUDIO
-		DBGConsole_Msg(0, "MIXER2");
-		#endif
-// Needs accuracy verification
-u16 dmemin( command.Abi2Mixer.DmemIn );
-u16 dmemout( command.Abi2Mixer.DmemOut );
-s32 gain( command.Abi2Mixer.Gain );
-u16	count( command.Abi2Mixer.Count * 16 );
+void INTERLEAVE3() { // Needs accuracy verification...
+	//u32 inL, inR;
+	u16 *outbuff = (u16 *)(BufferSpace + 0x4f0);//(u16 *)(AudioOutBuffer+dmem);
+	u16 *inSrcR;
+	u16 *inSrcL;
+	u16 Left, Right;
 
-//printf( "Mixer: i:%04x o:%04x g:%08x (%d) c:%04x - %08x%08x\n", dmemin, dmemout, gain, s16(gain), count, command.cmd0, command.cmd1 );
+	//inR = t9 & 0xFFFF;
+	//inL = (t9 >> 16) & 0xFFFF;
 
-gAudioHLEState.Mixer( dmemout, dmemin, gain, count );		// NB - did mult gain by 2 above, then shifted by 16 inside mixer.
+	inSrcR = (u16 *)(BufferSpace + 0xb40);
+	inSrcL = (u16 *)(BufferSpace + 0x9d0);
+
+	for (int x = 0; x < (0x170 / 4); x++) {
+		Left = *(inSrcL++);
+		Right = *(inSrcR++);
+
+		*(outbuff++) = *(inSrcR++);
+		*(outbuff++) = *(inSrcL++);
+		*(outbuff++) = (u16)Right;
+		*(outbuff++) = (u16)Left;
+		/*
+		Left=*(inSrcL++);
+		Right=*(inSrcR++);
+		*(outbuff++)=(u16)Left;
+		Left >>= 16;
+		*(outbuff++)=(u16)Right;
+		Right >>= 16;
+		*(outbuff++)=(u16)Left;
+		*(outbuff++)=(u16)Right;*/
+	}
 }
 
-void MIXER3( AudioHLECommand command)
-{
-	#ifdef DEBUG_AUDIO
-		DBGConsole_Msg(0, "MIXER3");
-		#endif
-  // Needs accuracy verification...
-	u16 dmemin  = (u16)(command.cmd1 >> 0x10)  + 0x4f0;
-	u16 dmemout = (u16)(command.cmd1 & 0xFFFF) + 0x4f0;
-	//u8  flags   = (u8)((command.cmd0 >> 16) & 0xff);
-	s32 gain    = (s16)(command.cmd0 & 0xFFFF);
+void MIXER() {
+	u32 dmemin = (u16)(t9 >> 0x10);
+	u32 dmemout = (u16)(t9 & 0xFFFF);
+	//u8  flags = (u8)((k0 >> 16) & 0xff);
+	s32 gain = (s16)(k0 & 0xFFFF);
+	s32 temp;
 
-	gAudioHLEState.Mixer( dmemout, dmemin, gain, 0x170 );		// NB - did mult gain by 2 above, then shifted by 16 inside mixer.
+	if (AudioCount == 0)
+		return;
+
+	for (int x = 0; x < AudioCount; x += 2) {
+		temp  = (*(s16 *)(BufferSpace + dmemin + x) * gain) >> 15;
+		temp += *(s16 *)(BufferSpace + dmemout + x);
+
+		*(s16 *)(BufferSpace + dmemout + x) = pack_signed(temp);
+	}
+}
+
+void MIXER2() { // Needs accuracy verification...
+	u16 dmemin = (u16)(t9 >> 0x10);
+	u16 dmemout = (u16)(t9 & 0xFFFF);
+	u32 count = ((k0 >> 12) & 0xFF0);
+	s32 gain = (s16)(k0 & 0xFFFF) * 2;
+	s32 temp;
+
+	for (u32 x = 0; x < count; x += 2) { // I think I can do this a lot easier 
+
+		temp  = (*(s16 *)(BufferSpace + dmemin + x) * gain) >> 16;
+		temp += *(s16 *)(BufferSpace + dmemout + x);
+
+		*(s16 *)(BufferSpace + dmemout + x) = pack_signed(temp);
+	}
+}
+
+void MIXER3() { // Needs accuracy verification...
+	u16 dmemin = (u16)(t9 >> 0x10) + 0x4f0;
+	u16 dmemout = (u16)(t9 & 0xFFFF) + 0x4f0;
+	//u8  flags = (u8)((k0 >> 16) & 0xff);
+	s32 gain = (s16)(k0 & 0xFFFF) * 2;
+	s32 temp;
+
+	for (int x = 0; x < 0x170; x += 2) { // I think I can do this a lot easier 
+		temp = (*(s16 *)(BufferSpace + dmemin + x) * gain) >> 16;
+		temp += *(s16 *)(BufferSpace + dmemout + x);
+
+		*(s16 *)(BufferSpace + dmemout + x) = pack_signed(temp);
+	}
 }

@@ -394,7 +394,7 @@ struct AudioHLECommand
 };
 //DAEDALUS_STATIC_ASSERT( sizeof( AudioHLECommand ) == 8 );
 
-using AudioHLEInstruction = void (*) (AudioHLECommand command);
+typedef void ( * AudioHLEInstruction )( AudioHLECommand command );
 
 // ABI_BUFFER
 void CLEARBUFF(AudioHLECommand command ); void CLEARBUFF2(AudioHLECommand command); void CLEARBUFF3(AudioHLECommand command);
@@ -435,7 +435,5 @@ void UNKNOWN(AudioHLECommand command);
 #define rdram	((u8*)g_pMemoryBuffers[MEM_RD_RAM])
 
 // Use these functions to interface with the HLE Audio...
-void Audio_Ucode();
-void Audio_Reset();
-
+void HLEStart();
 #endif // HLEAUDIO_AUDIOHLE_H_

@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <mmsystem.h>
 #include <dsound.h>
+#include "HLEAudio/audiohle.h"
 
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
@@ -64,9 +65,9 @@ public:
 	virtual bool			StartEmulation();
 	virtual void			StopEmulation();
 
-	virtual void			DacrateChanged( int SystemType );
-	virtual void			LenChanged();
-	virtual u32				ReadLength();
+	virtual void			AiDacrateChanged( int SystemType );
+	virtual void			AiLenChanged();
+	virtual u32				AiReadLength();
 	virtual EProcessResult	ProcessAList();
 	virtual void			Update( bool wait );
 private:
@@ -196,7 +197,7 @@ u32	DAEDALUS_THREAD_CALL_TYPE CAudioPluginW32::AudioThread(void * arg)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAudioPluginW32::DacrateChanged( int SystemType )
+void	CAudioPluginW32::AiDacrateChanged( int SystemType )
 {
 	if (Dacrate != Memory_AI_GetRegister(AI_DACRATE_REG))
 	{
@@ -210,7 +211,7 @@ void	CAudioPluginW32::DacrateChanged( int SystemType )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAudioPluginW32::LenChanged()
+void	CAudioPluginW32::AiLenChanged()
 {
 	if( gAudioPluginEnabled == APM_DISABLED )
 		return;
@@ -261,7 +262,7 @@ void	CAudioPluginW32::LenChanged()
 //*****************************************************************************
 //
 //*****************************************************************************
-u32		CAudioPluginW32::ReadLength()
+u32		CAudioPluginW32::AiReadLength()
 {
 	return Snd1Len;
 }
@@ -357,7 +358,7 @@ EProcessResult	CAudioPluginW32::ProcessAList()
 		break;
 
 	case APM_ENABLED_SYNC:
-		Audio_Ucode();
+		HLEStart();
 		result = PR_COMPLETED;
 		break;
 	}

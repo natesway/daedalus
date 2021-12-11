@@ -36,9 +36,9 @@ public:
 	virtual bool			StartEmulation();
 	virtual void			StopEmulation();
 
-	virtual void			DacrateChanged( int SystemType );
-	virtual void			LenChanged();
-	virtual u32				ReadLength();
+	virtual void			AiDacrateChanged( int SystemType );
+	virtual void			AiLenChanged();
+	virtual u32				AiReadLength();
 	virtual EProcessResult	ProcessAList();
 
 //			void			SetAdaptFrequecy( bool adapt );

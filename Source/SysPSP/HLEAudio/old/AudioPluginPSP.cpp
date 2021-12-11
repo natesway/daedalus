@@ -107,9 +107,9 @@ void	CAudioPluginPsp::StopEmulation()
 	mAudioOutput->StopAudio();
 }
 
-void	CAudioPluginPsp::DacrateChanged( int SystemType )
+void	CAudioPluginPsp::AiDacrateChanged( int SystemType )
 {
-//	printf( "DacrateChanged( %s )\n", (SystemType == ST_NTSC) ? "NTSC" : "PAL" );
+//	printf( "AiDacrateChanged( %s )\n", (SystemType == ST_NTSC) ? "NTSC" : "PAL" );
 	u32 type {(u32)((SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK)};
 	u32 dacrate {Memory_AI_GetRegister(AI_DACRATE_REG)};
 	u32	frequency {type / (dacrate + 1)};
@@ -121,7 +121,7 @@ void	CAudioPluginPsp::DacrateChanged( int SystemType )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAudioPluginPsp::LenChanged()
+void	CAudioPluginPsp::AiLenChanged()
 {
 	if( gAudioPluginEnabled > APM_DISABLED )
 	{
@@ -141,7 +141,7 @@ void	CAudioPluginPsp::LenChanged()
 //*****************************************************************************
 //
 //*****************************************************************************
-u32		CAudioPluginPsp::ReadLength()
+u32		CAudioPluginPsp::AiReadLength()
 {
 	return 0;
 }
@@ -171,7 +171,7 @@ struct SHLEStartJob : public SJob
 
 	int DoHLEStart()
 	{
-		 Audio_Ucode();
+		 HLEStart();
 		 return 0;
 	}
 
@@ -204,7 +204,7 @@ EProcessResult	CAudioPluginPsp::ProcessAList()
 			result = PR_STARTED;
 			break;
 		case APM_ENABLED_SYNC:
-			Audio_Ucode();
+			HLEStart();
 			result = PR_COMPLETED;
 			break;
 	}

@@ -51,7 +51,6 @@ inline s32		FixedPointMul15( s32 a, s32 b )
 void SPNOOP( AudioHLECommand command ) {}
 void UNKNOWN( AudioHLECommand command ) {}
 
-AudioHLEState gAudioHLEState;
 
 void	AudioHLEState::ClearBuffer( u16 addr, u16 count )
 {

@@ -21,8 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define UTILITY_DAEDALUSTYPES_H_
 
 #include "Base/Assert.h"
-
+#include "HLEAudio/my_types.h" 
 #include <stdint.h>
+
 using u8 =  uint8_t;
 using u16 = uint16_t;
 using u32 = uint32_t;
