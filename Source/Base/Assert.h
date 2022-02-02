@@ -38,9 +38,6 @@ enum EAssertResult
 
 EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... );
 
-#ifndef DAEDALUS_HALT
-#error DAEDALUS_HALT should be defined in Platform.h
-#endif
 
 //
 //	Use this api to override the default assert handler, e.g. for logging asserts during a batch process
