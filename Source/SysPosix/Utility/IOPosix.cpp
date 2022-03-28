@@ -65,12 +65,12 @@ namespace IO
 		#endif
 	}
 	namespace Directory
-	{
+	{	// Only used by batch test.
 		bool	Create( const char * p_path )
 		{
 			return mkdir( p_path, 0777 ) == 0;
 		}
-
+		// DynarecDump // Dump // GL Interface // PSP UI
 		bool	EnsureExists( const char * p_path )
 		{
 			if ( IsDirectory(p_path) )
@@ -89,7 +89,7 @@ namespace IO
 
 			return Create( p_path );
 		}
-
+			// Web Debug // PSP UI SaveState // BatchTest
 		bool	IsDirectory( const char * p_path )
 		{
 			struct stat		s;

@@ -76,20 +76,31 @@ const char * const		DATE_TEXT = "Built ";
 const char * const		URL_TEXT_1 = "https://github.com/daedalusx64/daedalus/";
 const char * const		URL_TEXT_2 = "https://discord.gg/AHWDYmB";
 
-const char * const		INFO_TEXT[] =
-{
+std::array<char * const, 5> INFO_TEXT 
+// const char * const		INFO_TEXT[] =
+{{
   "Copyright (C) 2008-2019 DaedalusX64 Team",
   "Copyright (C) 2001-2009 StrmnNrmn",
   "Audio HLE code by Azimer",
   "",
   "For news and updates visit:",
-};
+}};
 
 
-const char * const		pspModel[ MAX_PSP_MODEL ] =
-{
-  "PSP PHAT (01g)", "PSP 2000 (02g)", "PSP BRITE(03g)", "PSP BRITE (04g)", "PSP GO (05G)", "UNKNOWN PSP", "PSP BRITE (07g)", "UNKNOWN PSP",  "PSP BRITE (09g)", "UNKNOWN PSP", "PSP STREET (11g)"
-};
+std::array <const * char const, 11> PSPModel
+{{
+  "PSP PHAT (01g)", 
+  "PSP 2000 (02g)", 
+  "PSP BRITE(03g)", 
+  "PSP BRITE (04g)",
+   "PSP GO (05G)", 
+   "UNKNOWN PSP", 
+   "PSP BRITE (07g)", 
+   "UNKNOWN PSP",  
+   "PSP BRITE (09g)", 
+   "UNKNOWN PSP", 
+   "PSP STREET (11g)"
+}};
 
 
 
@@ -124,7 +135,8 @@ const f32				DEFAULT_MIN_DEADZONE = 0.28f;		// Kind of gross - share somehow wit
 const f32				DEFAULT_MAX_DEADZONE = 1.0f;
 // Rom Selector component
 
-const char * const		gRomsDirectories[] =
+std::array <const char * const, 3> gRomDirectories
+// const char * const		gRomsDirectories[] =
 {
   "ms0:/n64/",
   DAEDALUS_PSP_PATH( "Roms/" ),

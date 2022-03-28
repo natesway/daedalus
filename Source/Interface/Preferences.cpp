@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <array>
 #include <string>
 #include <set>
 #include <map>
@@ -499,8 +500,8 @@ void SRomPreferences::Apply() const
 #endif
 }
 
-
-static const u32 gTextureHashFreqeuncies[] =
+static std::array<const u32, 7> gTextureHashFrequencies =
+// static const u32 gTextureHashFrequencies[] =
 {
 	0,	//THF_DISABLED = 0,
 	1,	//THF_EVERY_FRAME,
@@ -510,8 +511,8 @@ static const u32 gTextureHashFreqeuncies[] =
 	16,	//THF_EVERY_16,
 	32,	//THF_EVERY_32,
 };
-
-static const char * const gTextureHashFreqeuncyDescriptions[] =
+static std::array<const char * const, 7> gTextureHashFrequencyDescriptions =
+// static const char * const gTextureHashFrequencyDescriptions[] =
 {
 	"Disabled",			//THF_DISABLED = 0,
 	"Every Frame",		//THF_EVERY_FRAME,
@@ -526,7 +527,7 @@ static u32 GetTexureHashFrequencyAsFrames( ETextureHashFrequency thf )
 {
 	if(thf >= 0 && thf < NUM_THF)
 	{
-		return gTextureHashFreqeuncies[ thf ];
+		return gTextureHashFrequencies[ thf ];
 	}
 
 	return 0;
@@ -536,7 +537,7 @@ static ETextureHashFrequency GetTextureHashFrequencyFromFrames( u32 frames )
 {
 	for( u32 i = 0; i < NUM_THF; ++i )
 	{
-		if( frames <= gTextureHashFreqeuncies[ i ] )
+		if( frames <= gTextureHashFrequencies[ i ] )
 		{
 			return ETextureHashFrequency( i );
 		}
@@ -549,7 +550,7 @@ const char * Preferences_GetTextureHashFrequencyDescription( ETextureHashFrequen
 {
 	if(thf >= 0 && thf < NUM_THF)
 	{
-		return gTextureHashFreqeuncyDescriptions[ thf ];
+		return gTextureHashFrequencyDescriptions[ thf ];
 	}
 
 	return "?";

@@ -168,7 +168,7 @@ void CGraphicsPluginImpl::UpdateScreen()
 	{
 		UpdateFramerate();
 
-		// FIXME: safe printf
+		// FIXME: safe printf]
 		char string[22];
 		sprintf(string, "Daedalus | FPS %#.1f", gCurrentFramerate);
 

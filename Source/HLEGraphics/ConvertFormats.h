@@ -23,11 +23,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // convert rgba values (0-255 per channel) to a dword in A8R8G8B8 order..
 #define CONVERT_RGBA(r,g,b,a)  (a<<24) | (b<<16) | (g<<8) | r
 
+#include <array>
 
-static const u8 OneToEight[] = {
+static std::array< const u8, 2> OneToEight 
+{{
 	0x00,   // 0 -> 00 00 00 00
 	0xff    // 1 -> 11 11 11 11
-};
+}};
 
 static const u8 ThreeToEight[8] =
 {

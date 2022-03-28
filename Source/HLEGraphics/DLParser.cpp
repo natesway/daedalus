@@ -291,10 +291,12 @@ extern u32 uViHeight;
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 
-static const char * const gFormatNames[8] = {"RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"};
-
-static const char * const gSizeNames[4]   = {"4bpp", "8bpp", "16bpp", "32bpp"};
-static const char * const gOnOffNames[2]  = {"Off", "On"};
+static std::array<const char * const, 8> gFormatNames {"RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"};
+static std::array<const char * const, 4> gSizeNames {"4bpp", "8bpp", "16bpp", "32bpp"};
+static std::array<const char * const, 2> gOnOffNames {"Off", "On"};
+// static const char * const gFormatNames[8] = {"RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"};
+// static const char * const gSizeNames[4]   = {"4bpp", "8bpp", "16bpp", "32bpp"};
+// static const char * const gOnOffNames[2]  = {"Off", "On"};
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*****************************************************************************

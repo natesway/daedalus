@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROM.h"
 
 #include <stdio.h>
+#include <array>
 
 #include "Core/Cheats.h"
 #include "Core/CPU.h"
@@ -605,8 +606,10 @@ struct CountryIDInfo
 	u32				TvType;
 };
 
-static const CountryIDInfo g_CountryCodeInfo[] =
-{
+// static const CountryIDInfo g_CountryCodeInfo[] =
+
+	static std::array<const CountryIDInfo, 13> g_CountryCodeInfo = 
+{{
 	{  0,  "0",			OS_TV_NTSC },
 	{ '7', "Beta",		OS_TV_NTSC },
 	{ 'A', "NTSC",		OS_TV_NTSC },
@@ -620,12 +623,12 @@ static const CountryIDInfo g_CountryCodeInfo[] =
 	{ 'U', "Australia", OS_TV_PAL },
 	{ 'X', "PAL",		OS_TV_PAL },
 	{ 'Y', "PAL",		OS_TV_PAL }
-};
+}};
 
 // Get a string representing the country name from an ID value
 const char * ROM_GetCountryNameFromID( u8 country_id )
 {
-	for (u32 i = 0; i < ARRAYSIZE( g_CountryCodeInfo ); i++)
+	for (u32 i = 0; i < g_CountryCodeInfo.size(); i++)
 	{
 		if (g_CountryCodeInfo[i].CountryID == country_id)
 		{
@@ -638,7 +641,7 @@ const char * ROM_GetCountryNameFromID( u8 country_id )
 
 u32 ROM_GetTvTypeFromID( u8 country_id )
 {
-	for (u32 i = 0; i < ARRAYSIZE( g_CountryCodeInfo ); i++)
+	for (u32 i = 0; i <g_CountryCodeInfo.size(); i++)
 	{
 		if (g_CountryCodeInfo[i].CountryID == country_id)
 		{

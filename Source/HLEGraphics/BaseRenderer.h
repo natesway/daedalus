@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #else
 #include "SysGL/GL.h"
 #endif
+#include <array>
 
 #define HD_SCALE 0.754166f
 
@@ -436,14 +437,19 @@ protected:
 	};
 	static const u32 kNumBoundTextures = 2;
 
-	TextureInfo				mBoundTextureInfo[ kNumBoundTextures ];
-	CRefPtr<CNativeTexture>	mBoundTexture[ kNumBoundTextures ];
+	std::array<TextureInfo, kNumBoundTextures> mBoundTextureInfo;
+	// TextureInfo				mBoundTextureInfo[ kNumBoundTextures ];
+	std::array<CRefPtr<CNativeTexture>, kNumBoundTextures> mBoundTexture;
+	// CRefPtr<CNativeTexture>	mBoundTexture[ kNumBoundTextures ];
 
-	TexCoord				mTileTopLeft[ kNumBoundTextures ];
-	TextureWrap				mTexWrap[ kNumBoundTextures ];
+	std::array<TexCoord, kNumBoundTextures> mTileTopLeft;
+	std::array<TextureWrap, kNumBoundTextures> mTexWrap;
+	// TexCoord				mTileTopLeft[ kNumBoundTextures ];
+	// TextureWrap				mTexWrap[ kNumBoundTextures ];
 
 	// Index of the corresponding tile state.
-	u8						mActiveTile[ kNumBoundTextures ];
+	std::array<u8, kNumBoundTextures> mActiveTile;
+	// u8						mActiveTile[ kNumBoundTextures ];
 
 
 	//Max is 18 according to the manual //Corn
@@ -453,7 +459,8 @@ protected:
 	mutable Matrix4x4	mWorldProject;
 	Matrix4x4			mTempMat;
 	Matrix4x4			mProjectionMat;
-	Matrix4x4			mModelViewStack[MATRIX_STACK_SIZE];	//DKR reuses these and need at least 4 //Corn
+	std::array<Matrix4x4, MATRIX_STACK_SIZE> mModelViewStack;
+	// Matrix4x4			mModelViewStack[MATRIX_STACK_SIZE];	//DKR reuses these and need at least 4 //Corn
 	u32					mModelViewTop;
 	u32					mMatStackSize;
 	mutable bool		mWorldProjectValid;
@@ -469,11 +476,13 @@ protected:
 #endif
 
 	static const u32 	kMaxIndices = 320;					// We need at least 80 verts * 3 = 240? But Flying Dragon uses more than 256 //Corn
-	u16					mIndexBuffer[kMaxIndices];
+	std::array<u16, kMaxIndices> mIndexBuffer;
+	// u16					mIndexBuffer[kMaxIndices];
 	u32					mNumIndices;
 
 	// Processed vertices waiting for output...
-	DaedalusVtx4		mVtxProjected[kMaxN64Vertices];		// Transformed and projected vertices (suitable for clipping etc)
+	std::array<DaedalusVtx4, kMaxN64Vertices> mVtxProjected;
+	// DaedalusVtx4		mVtxProjected[kMaxN64Vertices];		// Transformed and projected vertices (suitable for clipping etc)
 	u32					mVtxClipFlagsUnion;					// Bitwise OR of all the vertex flags added to the current batch. If this is 0, we can trivially accept everything without clipping
 
 

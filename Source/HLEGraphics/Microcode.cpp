@@ -29,6 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Ultra/ultra_gbi.h"
 
+#include <vector>
+
 // Limit cache ucode entries to 6
 // In theory we should never reach this max
 #define MAX_UCODE_CACHE_ENTRIES 6
@@ -137,7 +139,8 @@ struct MicrocodeData
 	const char *ucode_name;
 };
 
-static const MicrocodeData gMicrocodeData[] =
+// static const MicrocodeData gMicrocodeData[] =
+static std::vector<const MicrocodeData> gMicrocodeData
 {
 	//
 	//	The only games that need defining here are custom ucodes or ucodes that lack a version string in the microcode data
@@ -203,7 +206,7 @@ UcodeInfo GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_bas
 	//
 	u32 code_hash = GBIMicrocode_MicrocodeHash( code_base, code_size );
 
-	for ( u32 i = 0; i < ARRAYSIZE(gMicrocodeData); i++ )
+	for ( u32 i = 0; i < gMicrocodeData.size(); i++ )
 	{
 		if ( code_hash == gMicrocodeData[i].hash )
 		{

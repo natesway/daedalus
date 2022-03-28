@@ -26,7 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/PIF.h"
 #include "Core/ROMBuffer.h"
 #include "Core/RomSettings.h"
-
+#include <vector> 
+#include <array>
 #include "Interface/RomDB.h"
 #ifdef DAEDALUS_PSP
 #include "SysPSP/Graphics/VideoMemoryManager.h"
@@ -153,9 +154,9 @@ static void Profiler_Fini()
 	CProfiler::Destroy();
 }
 #endif
-
-static const SysEntityEntry gSysInitTable[] =
-{
+static std::array<const SysEntityEntry,16> gSysInitTable
+// static const SysEntityEntry gSysInitTable[] =
+{{
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	{"DebugConsole",		CDebugConsole::Create,		CDebugConsole::Destroy},
 #endif
@@ -192,7 +193,7 @@ static const SysEntityEntry gSysInitTable[] =
 #ifdef DAEDALUS_GL
 	{"UI",					UI_Init,				 	UI_Finalise},
 #endif
-};
+}};
 
 struct RomEntityEntry
 {
@@ -201,8 +202,8 @@ struct RomEntityEntry
 	void (*close)();
 };
 
-static const RomEntityEntry gRomInitTable[] =
-{
+static std::array<const RomEntityEntry, 12> gRomInitTable =
+{{
 	{"RomBuffer",			RomBuffer::Open, 		RomBuffer::Close},
 	{"Settings",			ROM_LoadFile,			ROM_UnloadFile},
 	{"InputManager",		CInputManager::Init,	CInputManager::Fini},
@@ -218,11 +219,11 @@ static const RomEntityEntry gRomInitTable[] =
 #ifdef DAEDALUS_ENABLE_SYNCHRONISATION
 	{"CSynchroniser",		CSynchroniser::InitialiseSynchroniser, CSynchroniser::Destroy},
 #endif
-};
+}};
 
 bool System_Init()
 {
-	for(u32 i = 0; i < ARRAYSIZE(gSysInitTable); i++)
+	for(u32 i = 0; i < gSysInitTable.size(); i++)
 	{
 		const SysEntityEntry & entry = gSysInitTable[i];
 
@@ -250,7 +251,7 @@ bool System_Init()
 bool System_Open(const char * filename)
 {
 	strcpy(g_ROM.mFileName, filename);
-	for(u32 i = 0; i < ARRAYSIZE(gRomInitTable); i++)
+	for(u32 i = 0; i < gRomInitTable.size(); i++)
 	{
 		const RomEntityEntry & entry = gRomInitTable[i];
 
@@ -273,7 +274,7 @@ bool System_Open(const char * filename)
 
 void System_Close()
 {
-	for(s32 i = ARRAYSIZE(gRomInitTable) - 1 ; i >= 0; i--)
+	for(s32 i = gRomInitTable.size() - 1 ; i >= 0; i--)
 	{
 		const RomEntityEntry & entry = gRomInitTable[i];
 
@@ -288,7 +289,7 @@ void System_Close()
 
 void System_Finalize()
 {
-	for(s32 i = ARRAYSIZE(gSysInitTable) - 1; i >= 0; i--)
+	for(s32 i = gSysInitTable.size() - 1; i >= 0; i--)
 	{
 		const SysEntityEntry & entry = gSysInitTable[i];
 
