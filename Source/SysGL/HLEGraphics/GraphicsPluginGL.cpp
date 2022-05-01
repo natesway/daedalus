@@ -164,6 +164,7 @@ void CGraphicsPluginImpl::ProcessDList()
 }
 
 	bool ShowFPSonmenu = false;
+	bool toggle_fullscreen = false;
 
 void MainMenu(){
 
@@ -184,6 +185,22 @@ void MainMenu(){
 					if (ImGui::MenuItem("Show FPS"))   {
 						if(ShowFPSonmenu == false) {ShowFPSonmenu = true;}
 						else if(ShowFPSonmenu == true) {ShowFPSonmenu = false;}
+					}
+
+					ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Video Mode"))
+				{
+					if (ImGui::MenuItem("Fullscreen"))   {
+						if (toggle_fullscreen == false) {
+							SDL_SetWindowFullscreen(gWindow, SDL_TRUE);
+							toggle_fullscreen = true;
+						}
+						else if (toggle_fullscreen == true) {
+							SDL_SetWindowFullscreen(gWindow, SDL_FALSE);
+							toggle_fullscreen = false;
+						}
 					}
 
 					ImGui::EndMenu();
