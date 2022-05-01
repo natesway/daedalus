@@ -122,7 +122,7 @@ bool GraphicsContextGL::Initialise()
 	{
 		SDL_DestroyWindow(gWindow);
 		gWindow = NULL;
-		SDL_Quit();
+		//SDL_Quit();
 		return false;
 	}
 

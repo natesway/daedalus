@@ -229,7 +229,7 @@ void MainMenu(){
 			ImGui::Text("Current FPS %#.1f", gCurrentFramerate);
 			}
 
-			ImGui::EndMenuBar();
+			ImGui::EndMainMenuBar();
 	}
 
 

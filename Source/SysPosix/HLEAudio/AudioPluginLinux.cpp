@@ -120,7 +120,7 @@ void AudioPluginLINUX::LenChanged()
 	}
 	else
 	{
-		//This is disabled since it shutsdown SDL 
+		//This is disabled since it shutsdown SDL
 		//StopAudio();
 	}
 }
@@ -177,7 +177,7 @@ void AudioPluginLINUX::AudioCallback(void *userdata, Uint8 *stream, int len)
 		return;
 	}
 
-	plugin->mAudioBuffer.Drain( reinterpret_cast< Sample * >( stream ), len);
+	plugin->mAudioBuffer.Drain( reinterpret_cast< Sample * >( stream ), 4096);
 
 }
 
