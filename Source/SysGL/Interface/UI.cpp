@@ -12,12 +12,16 @@
 #include "System/IO.h"
 #include "System/Thread.h"
 
+#include "SysGL/Interface/imgui.h"
+#include "SysGL/Interface/backends/imgui_impl_sdl.h"
+#include "SysGL/Interface/backends/imgui_impl_opengl3.h"
+
 // TODO: Implemenent fullscreen toggle and window resize
 static bool toggle_fullscreen = false;
 
 static s32 get_saveslot_from_keysym(s32 keysym)
 {
-    switch (keysym) 
+    switch (keysym)
 	{
     case SDL_SCANCODE_0:
         return 0;
@@ -49,6 +53,9 @@ static void PollKeyboard(void * arg)
 	SDL_Event event;
 	while (SDL_PollEvent( &event) != 0)
 	{
+
+    ImGui_ImplSDL2_ProcessEvent(&event);
+
 		if (event.type == SDL_QUIT)
 		{
 			CPU_Halt("Window Closed");	// SDL window was closed

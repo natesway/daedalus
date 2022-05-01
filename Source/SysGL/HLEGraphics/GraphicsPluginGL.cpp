@@ -19,6 +19,10 @@
 
 #include "SysGL/GL.h"
 
+#include "SysGL/Interface/imgui.h"
+#include "SysGL/Interface/backends/imgui_impl_sdl.h"
+#include "SysGL/Interface/backends/imgui_impl_opengl3.h"
+
 extern SDL_Window * gWindow;
 
 EFrameskipValue     gFrameskipValue = FV_DISABLED;
@@ -159,6 +163,62 @@ void CGraphicsPluginImpl::ProcessDList()
 #endif
 }
 
+	bool ShowFPSonmenu = false;
+
+void MainMenu(){
+
+	ImGui::NewFrame();
+	extern EAudioPluginMode gAudioPluginEnabled;
+	if (ImGui::BeginMainMenuBar())
+	{
+			if (ImGui::BeginMenu("Menu"))
+	    	{
+	        if (ImGui::MenuItem("Settings"))   {
+					}
+
+	        ImGui::EndMenu();
+	    }
+
+			if (ImGui::BeginMenu("Debug"))
+				{
+					if (ImGui::MenuItem("Show FPS"))   {
+						if(ShowFPSonmenu == false) {ShowFPSonmenu = true;}
+						else if(ShowFPSonmenu == true) {ShowFPSonmenu = false;}
+					}
+
+					ImGui::EndMenu();
+			}
+
+
+			if (ImGui::BeginMenu("Audio mode")) {
+
+				if (ImGui::MenuItem("Disabled")) {
+					 gAudioPluginEnabled = APM_DISABLED;
+				}
+
+				if (ImGui::MenuItem("Enabled Async")) {
+					 gAudioPluginEnabled = APM_ENABLED_ASYNC;
+				}
+
+				if (ImGui::MenuItem("Enabled Sync")) {
+					gAudioPluginEnabled = APM_ENABLED_SYNC;
+				}
+
+				ImGui::EndMenu();
+
+			 }
+
+			if(ShowFPSonmenu == true){
+			ImGui::Text("Current FPS %#.1f", gCurrentFramerate);
+			}
+
+			ImGui::EndMenuBar();
+	}
+
+
+}
+
+
 void CGraphicsPluginImpl::UpdateScreen()
 {
 	u32 current_origin = Memory_VI_GetRegister(VI_ORIGIN_REG);
@@ -169,9 +229,17 @@ void CGraphicsPluginImpl::UpdateScreen()
 
 		// FIXME: safe printf
 		char string[22];
-		sprintf(string, "Daedalus | FPS %#.1f", gCurrentFramerate);
+		sprintf(string, "DaedalusX64");
 
 	SDL_SetWindowTitle(gWindow, string);
+
+//Start ImGui and Render MainMenu
+ImGui_ImplOpenGL3_NewFrame();
+ImGui_ImplSDL2_NewFrame();
+MainMenu();
+ImGui::Render();
+ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+ImGui::EndFrame();
 
 		if (gTakeScreenshot)
 		{
@@ -188,6 +256,9 @@ void CGraphicsPluginImpl::UpdateScreen()
 void CGraphicsPluginImpl::RomClosed()
 {
 	DBGConsole_Msg(0, "Finalising GLGraphics");
+	ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplSDL2_Shutdown();
+  ImGui::DestroyContext();
 	DLParser_Finalise();
 	CTextureCache::Destroy();
 	DestroyRenderer();

@@ -71,7 +71,7 @@ project (DaedalusX64)
 				set (SYSGL_GRAPHICS SysGL/Graphics/GraphicsContextGL.cpp SysGL/Graphics/NativeTextureGL.cpp)
 				set (SYSGL_HLEGRAPHICS SysGL/HLEGraphics/GraphicsPluginGL.cpp SysGL/HLEGraphics/RendererGL.cpp)
 				set (SYSGL_INPUT SysGL/Input/InputManagerGL.cpp)
-				set (SYSGL_INTERFACE SysGL/Interface/UI.cpp)
+				set (SYSGL_INTERFACE SysGL/Interface/UI.cpp SysGL/Interface/imgui.cpp SysGL/Interface/imgui_demo.cpp SysGL/Interface/imgui_draw.cpp SysGL/Interface/imgui_tables.cpp SysGL/Interface/imgui_widgets.cpp SysGL/Interface/backends/imgui_impl_sdl.cpp SysGL/Interface/backends/imgui_impl_opengl3.cpp)
 				set (SYSGL_BUILD ${SYSGL_GRAPHICS} ${SYSGL_HLEGRAPHICS} ${SYSGL_INPUT} ${SYSGL_INTERFACE} ${PLUGIN_FILES})
 
 				#Windows -- Not sure if it works yet

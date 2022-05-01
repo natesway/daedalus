@@ -3,11 +3,16 @@
 
 #include <stdio.h>
 
+
 #include "SysGL/GL.h"
 
 #include "Graphics/GraphicsContext.h"
 
 #include "Graphics/ColourValue.h"
+
+#include "SysGL/Interface/imgui.h"
+#include "SysGL/Interface/backends/imgui_impl_sdl.h"
+#include "SysGL/Interface/backends/imgui_impl_opengl3.h"
 
 
 static u32 SCR_WIDTH = 640;
@@ -68,7 +73,7 @@ bool GraphicsContextGL::Initialise()
 {
 
 	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO) < 0 )
+	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 )
 	{
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		return false;
@@ -83,17 +88,34 @@ bool GraphicsContextGL::Initialise()
 
 	//Create window
 	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
-	if (gWindow == nullptr)
-	{
-		printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
-		return false;
-	}
 
-	
 	//Create context
 	SDL_GLContext gContext = SDL_GL_CreateContext( gWindow );
 
+	SDL_GL_MakeCurrent(gWindow, gContext);
+
 	SDL_GL_SetSwapInterval(1);
+
+	 // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsClassic();
+
+    // Setup Platform/Renderer backends
+    const char* glsl_version = "#version 130";
+    ImGui_ImplSDL2_InitForOpenGL(gWindow, gContext);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
+
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+
 
 	GLenum err = glewInit();
 	if (err != GLEW_OK || !GLEW_VERSION_3_2)

@@ -11,7 +11,7 @@ function pre_prep(){
 
         echo "Removing previous build attempt"
         rm -r "$PWD/$PLATFORM"
-    fi   
+    fi
 
     if [ -d $PWD/DaedalusX64 ]; then
         rm -r $PWD/DaedalusX64/EBOOT.PBP
@@ -41,7 +41,7 @@ function finalPrep() {
 
 function build() {
 
-## Build PSP extensions - Really need to make these cmake files 
+## Build PSP extensions - Really need to make these cmake files
 if [[ $PLATFORM = "PSP"* ]]; then
   make -C "$PWD/../Source/SysPSP/PRX/DveMgr"
   make -C "$PWD/../Source/SysPSP/PRX/ExceptionHandler"
@@ -67,7 +67,7 @@ if [[ $1 = "PSP" ]]; then
 
     CMAKEDEFINES+="-DCMAKE_TOOLCHAIN_FILE=../Tools/psptoolchain.cmake"
 fi
- 
+
 CMAKEDEFINES+=" -D$1=1"
 if [[ $2 = "DEBUG" ]]; then
     CMAKEDEFINES+=" -D$2=1"
@@ -87,7 +87,7 @@ case "$1" in
     echo "Building debug or profile builds requires DEBUG or PROFILE after build option"
     ;;
     esac
-    
+
 if [[ $1 = "LINUX" ]]; then
-    cp Source/SysGL/HLEGraphics/n64.psh LINUXbuild
+    cp ../Source/SysGL/HLEGraphics/n64.psh ../LINUXbuild
 fi
