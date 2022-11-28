@@ -108,7 +108,7 @@ bool GraphicsContextGL::Initialise()
     //ImGui::StyleColorsClassic();
 
     // Setup Platform/Renderer backends
-    const char* glsl_version = "#version 130";
+    const char* glsl_version = nullptr;
     ImGui_ImplSDL2_InitForOpenGL(gWindow, gContext);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
