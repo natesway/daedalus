@@ -51,7 +51,7 @@ project (DaedalusX64)
 
 
 				set (PSP_BUILD ${PSP_DEBUG_FILES} ${PSP_DVEMGR_FILES} ${PSP_DYNAREC_FILES} ${PSP_GRAPHICS_FILES} ${PSP_HLEAUDIO_FILES} ${PSP_HLEGRAPHICS_FILES} ${PSP_INPUTMANAGER_FILES} ${PSP_KERNELBUTTON_FILES} ${PSP_MEDIAENGINEFILES} ${PSP_UI_FILES} ${PSP_UTILITY_FILES})
-				Set(PSPSDK_LIBS -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk -lpsplibc -lpsputility -lpspuser -lpspkernel -lpspaudiolib)
+				Set(PSPSDK_LIBS -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk  -lpsputility -lpspuser -lpspkernel -lpspaudiolib)
 
 
 				#Handle .S files - Probably a better way to do this
@@ -111,7 +111,7 @@ elseif(PROFILE)
 else()
 	message("Release Build")
 	include_directories(${PROJECT_SOURCE_DIR}/Base/Release)
-	add_definitions("-O2 -DNDEBUG")
+	add_definitions(" -DNDEBUG ")
 endif(DEBUG)
 
 if (PSP)
