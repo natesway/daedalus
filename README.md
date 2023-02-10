@@ -3,7 +3,7 @@
 DaedalusX64 is a Nintendo 64 emulator for PSP, 3DS, Vita, Linux, macOS and Windows
  
 ## Features:
- 
+
 - Fast emulation
 - High compatibility
 - Support for PSP TV Mode with 480p output!
