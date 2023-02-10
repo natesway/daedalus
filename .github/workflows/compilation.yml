@@ -27,19 +27,6 @@ jobs:
       id: slug
       run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
 
-    - name: Prepare artifacts
-      run: |
-        tar -zcvf daedalusX64-PSP.tar.gz \
-          DaedalusX64/Plugins \
-          DaedalusX64/EBOOT.PBP \
-          DaedalusX64/roms.ini \
-          DaedalusX64/readme.txt \
-          DaedalusX64/copying.txt \
-          DaedalusX64/Resources \
-          DaedalusX64/Languages \
-          DaedalusX64/ControllerConfigs \
-
-
     - name: Upload artifacts
       if: ${{ success() }}
       uses: actions/upload-artifact@v2
