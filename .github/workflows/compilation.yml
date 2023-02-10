@@ -45,7 +45,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: DaedalusX64-PSP
-        path: daedalusX64-PSP.tar.gz
+        path: DaedalusX64
 
     - name: Extract tag name
       if: startsWith(github.ref, 'refs/tags/')
